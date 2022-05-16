@@ -1,15 +1,10 @@
 package com.sole.saas.supplier.services.impl;
 
 import com.sole.saas.supplier.constant.BusinessStatusEnum;
-import com.sole.saas.supplier.models.po.QualificationInfoPo;
-import com.sole.saas.supplier.models.po.SupplierBasicInfoPo;
-import com.sole.saas.supplier.models.po.SupplierBuyerUserPo;
-import com.sole.saas.supplier.models.po.SupplierUserInfoPo;
-import com.sole.saas.supplier.models.request.InitSupplierRequest;
-import com.sole.saas.supplier.repositorys.IQualificationInfoRepository;
-import com.sole.saas.supplier.repositorys.ISupplierBasicInfoRepository;
-import com.sole.saas.supplier.repositorys.ISupplierBuyerUserRepository;
-import com.sole.saas.supplier.repositorys.ISupplierUserInfoRepository;
+import com.sole.saas.supplier.cvts.*;
+import com.sole.saas.supplier.models.po.*;
+import com.sole.saas.supplier.models.request.*;
+import com.sole.saas.supplier.repositorys.*;
 import com.sole.saas.supplier.services.ISupplierInfoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,14 +24,18 @@ public class SupplierServiceImpl implements ISupplierInfoService {
 
     private final IQualificationInfoRepository qualificationInfoRepository;
 
+    private final IRegisterInfoRepository registerInfoRepository;
+
     private final ISupplierUserInfoRepository supplierUserInfoRepository;
 
     private final ISupplierBuyerUserRepository supplierBuyerUserRepository;
 
     public SupplierServiceImpl(ISupplierBasicInfoRepository supplierBasicInfoRepository, IQualificationInfoRepository qualificationInfoRepository,
-                               ISupplierUserInfoRepository supplierUserInfoRepository, ISupplierBuyerUserRepository supplierBuyerUserRepository) {
+                               IRegisterInfoRepository registerInfoRepository, ISupplierUserInfoRepository supplierUserInfoRepository,
+                               ISupplierBuyerUserRepository supplierBuyerUserRepository) {
         this.supplierBasicInfoRepository = supplierBasicInfoRepository;
         this.qualificationInfoRepository = qualificationInfoRepository;
+        this.registerInfoRepository = registerInfoRepository;
         this.supplierUserInfoRepository = supplierUserInfoRepository;
         this.supplierBuyerUserRepository = supplierBuyerUserRepository;
     }
@@ -59,6 +58,11 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         qualificationInfoPo.setCreditCode(request.getCreditCode());
         qualificationInfoRepository.save(qualificationInfoPo);
 
+        // 创建一条空的公司注册信息
+        RegisterInfoPo registerInfoPo = new RegisterInfoPo();
+        registerInfoPo.setSupplierId(supplierId);
+        qualificationInfoRepository.save(qualificationInfoPo);
+
         // 添加供应商联系人
         SupplierUserInfoPo supplierUserInfoPo = new SupplierUserInfoPo();
         supplierUserInfoPo.setSupplierId(supplierId);
@@ -72,5 +76,36 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         supplierBuyerUserPo.setSupplierId(supplierId);
         supplierBuyerUserPo.setBuyerUserId(request.getBuyerUserId());
         supplierBuyerUserRepository.save(supplierBuyerUserPo);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void addSupplier(SupplierRequest request, boolean isDraft) {
+
+        // 供应商基础信息
+        final SupplierBasicInfoRequest basicInfoRequest = request.getBasicInfoRequest();
+        final SupplierBasicInfoPo basicInfoPo = SupplierBasicInfoCvt.INSTANCE.requestToPo(basicInfoRequest);
+        basicInfoPo.setBusinessStatus(isDraft ? BusinessStatusEnum.DRAFT.getCode() : BusinessStatusEnum.IN_PROCESS.getCode());
+        supplierBasicInfoRepository.updateById(basicInfoPo);
+
+        // 资质信息
+        final QualificationInfoRequest qualificationInfoRequest = request.getQualificationInfoRequest();
+        final QualificationInfoPo qualificationInfoPo = QualificationInfoCvt.INSTANCE.requestToPo(qualificationInfoRequest);
+        qualificationInfoRepository.updateById(qualificationInfoPo);
+
+        // 供应商联系人信息
+        final SupplierUserInfoRequest userInfoRequest = request.getSupplierUserInfoRequest();
+        final SupplierUserInfoPo supplierUserInfoPo = SupplierUserInfoCvt.INSTANCE.requestToPo(userInfoRequest);
+        supplierUserInfoRepository.updateById(supplierUserInfoPo);
+
+        // 公司注册信息
+        final RegisterInfoRequest registerInfoRequest = request.getRegisterInfoRequest();
+        final RegisterInfoPo registerInfoPo = RegisterInfoCvt.INSTANCE.requestToPo(registerInfoRequest);
+        registerInfoRepository.save(registerInfoPo);
+
+        // 采购员信息
+        final SupplierBuyerUserRequest buyerUserRequest = request.getSupplierBuyerUserRequest();
+        final SupplierBuyerUserPo buyerUserPo = SupplierBuyerUserCvt.INSTANCE.requestToPo(buyerUserRequest);
+        supplierBuyerUserRepository.updateById(buyerUserPo);
     }
 }

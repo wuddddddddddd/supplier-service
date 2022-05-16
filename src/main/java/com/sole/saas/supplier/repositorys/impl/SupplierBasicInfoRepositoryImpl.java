@@ -27,4 +27,10 @@ public class SupplierBasicInfoRepositoryImpl extends ServiceImpl<SupplierBasicIn
     public boolean save(SupplierBasicInfoPo entity) {
         return super.save(entity);
     }
+
+    @Override
+    @BaseData(fill = OperatorType.UPDATE)
+    public boolean updateById(SupplierBasicInfoPo entity) {
+        return super.updateById(entity);
+    }
 }

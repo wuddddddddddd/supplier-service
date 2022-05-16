@@ -27,4 +27,10 @@ public class SupplierUserInfoRepositoryImpl extends ServiceImpl<SupplierUserInfo
     public boolean save(SupplierUserInfoPo entity) {
         return super.save(entity);
     }
+
+    @Override
+    @BaseData(fill = OperatorType.UPDATE)
+    public boolean updateById(SupplierUserInfoPo entity) {
+        return super.updateById(entity);
+    }
 }

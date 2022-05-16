@@ -27,4 +27,10 @@ public class QualificationInfoRepositoryImpl extends ServiceImpl<QualificationIn
     public boolean save(QualificationInfoPo entity) {
         return super.save(entity);
     }
+
+    @Override
+    @BaseData(fill = OperatorType.UPDATE)
+    public boolean updateById(QualificationInfoPo entity) {
+        return super.updateById(entity);
+    }
 }

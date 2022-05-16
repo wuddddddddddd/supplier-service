@@ -1,6 +1,7 @@
 package com.sole.saas.supplier.services;
 
 import com.sole.saas.supplier.models.request.InitSupplierRequest;
+import com.sole.saas.supplier.models.request.SupplierRequest;
 
 /**
  * @description: TODO
@@ -10,4 +11,6 @@ import com.sole.saas.supplier.models.request.InitSupplierRequest;
 public interface ISupplierInfoService {
 
     void initCreateSupplier(InitSupplierRequest request);
+
+    void addSupplier(SupplierRequest request, boolean isDraft);
 }
