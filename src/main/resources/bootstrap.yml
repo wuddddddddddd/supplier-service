@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: supplier-service
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${nacos}
+        group: ${group}
+      config:
+        server-addr: ${nacos}
+        file-extension: yml
+        group: ${group}
+        extension-configs:
+          - dataId: common-env.yml
+            group: ${group}
+            refresh: true
+          - dataId: common-logback.yml
+            group: ${group}
+            refresh: true
+          - dataId: common-datasource-supplier.yml
+            group: ${group}
+            refresh: false
+          - dataId: common-redis.yml
+            group: ${group}
+            refresh: true
+          - dataId: common-stream.yml
+            group: ${group}
+            refresh: true
+          - dataId: common-mybatis.yml
+            group: ${group}
+            refresh: true
+          - dataId: common-loadbalance.yml
+            group: ${group}
+            refresh: false
+          - dataId: common-job.yml
+            group: ${group}
+            refresh: false
+
+nacos: 192.168.5.107:8848
+group: k8s-sccp
