@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author wjd
@@ -31,4 +33,7 @@ public class SupplierRequest implements Serializable {
 
     @ApiModelProperty(value = "所属采购员信息")
     private SupplierBuyerUserRequest supplierBuyerUserRequest;
+
+    @ApiModelProperty(value = "主营行业")
+    private List<Long> industryList = new ArrayList<>();
 }

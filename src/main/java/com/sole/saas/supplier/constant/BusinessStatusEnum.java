@@ -1,5 +1,6 @@
 package com.sole.saas.supplier.constant;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -8,6 +9,7 @@ import lombok.Getter;
  * @date 2022-05-16
  */
 @Getter
+@AllArgsConstructor
 public enum BusinessStatusEnum {
 
     CREATE_ING(1, "创建待完善"),
@@ -19,9 +21,4 @@ public enum BusinessStatusEnum {
     private int code;
 
     private String name;
-
-    BusinessStatusEnum(int code, String name) {
-        this.code = code;
-        this.name = name;
-    }
 }

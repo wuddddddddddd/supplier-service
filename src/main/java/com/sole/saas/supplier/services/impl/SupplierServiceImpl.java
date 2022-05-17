@@ -1,8 +1,10 @@
 package com.sole.saas.supplier.services.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.sole.saas.common.constant.Constant;
 import com.sole.saas.common.utils.ExceptionUtils;
 import com.sole.saas.supplier.constant.BusinessStatusEnum;
+import com.sole.saas.supplier.constant.SupplierDictCodeEnum;
 import com.sole.saas.supplier.cvts.*;
 import com.sole.saas.supplier.models.po.*;
 import com.sole.saas.supplier.models.request.*;
@@ -13,6 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @description: TODO
@@ -33,14 +39,17 @@ public class SupplierServiceImpl implements ISupplierInfoService {
 
     private final ISupplierBuyerUserRepository supplierBuyerUserRepository;
 
+    private final ISupplierDictRepository supplierDictRepository;
+
     public SupplierServiceImpl(ISupplierBasicInfoRepository supplierBasicInfoRepository, IQualificationInfoRepository qualificationInfoRepository,
                                IRegisterInfoRepository registerInfoRepository, ISupplierUserInfoRepository supplierUserInfoRepository,
-                               ISupplierBuyerUserRepository supplierBuyerUserRepository) {
+                               ISupplierBuyerUserRepository supplierBuyerUserRepository, ISupplierDictRepository supplierDictRepository) {
         this.supplierBasicInfoRepository = supplierBasicInfoRepository;
         this.qualificationInfoRepository = qualificationInfoRepository;
         this.registerInfoRepository = registerInfoRepository;
         this.supplierUserInfoRepository = supplierUserInfoRepository;
         this.supplierBuyerUserRepository = supplierBuyerUserRepository;
+        this.supplierDictRepository = supplierDictRepository;
     }
 
     @Override
@@ -92,6 +101,26 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         basicInfoPo.setBusinessStatus(isDraft ? BusinessStatusEnum.DRAFT.getCode() : BusinessStatusEnum.IN_PROCESS.getCode());
         supplierBasicInfoRepository.updateById(basicInfoPo);
 
+        // 主营行业信息
+        final Long supplierId = basicInfoPo.getId();
+        // 逻辑删除历史数据
+        SupplierDictRequest supplierDictRequest = new SupplierDictRequest();
+        supplierDictRequest.setSupplierId(supplierId);
+        supplierDictRequest.setCode(SupplierDictCodeEnum.INDUSTRY.getCode());
+        supplierDictRequest.setStatus(Constant.STATUS_NOT_DEL);
+        supplierDictRepository.updateOneByParams(SupplierDictPo::getStatus, Constant.STATUS_DEL, supplierDictRequest);
+        // 新增
+        final List<Long> industryList = request.getIndustryList();
+        List<SupplierDictPo> supplierDictPoList = new ArrayList<>();
+        for (Long industryId : industryList) {
+            SupplierDictPo supplierDictPo = new SupplierDictPo();
+            supplierDictPo.setCode(SupplierDictCodeEnum.INDUSTRY.getCode());
+            supplierDictPo.setSupplierId(supplierId);
+            supplierDictPo.setDictId(industryId);
+            supplierDictPoList.add(supplierDictPo);
+        }
+        supplierDictRepository.saveBatch(supplierDictPoList);
+
         // 资质信息
         final QualificationInfoRequest qualificationInfoRequest = request.getQualificationInfoRequest();
         final QualificationInfoPo qualificationInfoPo = QualificationInfoCvt.INSTANCE.requestToPo(qualificationInfoRequest);
@@ -123,6 +152,17 @@ public class SupplierServiceImpl implements ISupplierInfoService {
                         .errorMessage(null, "根据供应商ID{}未获取到对应的供应商信息", supplierId);
         final SupplierBasicInfoResponse basicInfoResponse = SupplierBasicInfoCvt.INSTANCE.poToResponse(basicInfoPo);
         response.setBasicInfoResponse(basicInfoResponse);
+
+        // 主营行业信息
+        SupplierDictRequest supplierDictRequest = new SupplierDictRequest();
+        supplierDictRequest.setSupplierId(supplierId);
+        supplierDictRequest.setCode(SupplierDictCodeEnum.INDUSTRY.getCode());
+        supplierDictRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final List<SupplierDictPo> supplierDictPoList = supplierDictRepository.getListByParams(supplierDictRequest);
+        if (CollectionUtil.isNotEmpty(supplierDictPoList)) {
+            final List<Long> industryIdList = supplierDictPoList.stream().map(SupplierDictPo::getDictId).collect(Collectors.toList());
+            response.setIndustryList(industryIdList);
+        }
 
         // 资质信息
         QualificationInfoRequest qualificationInfoRequest = new QualificationInfoRequest();
