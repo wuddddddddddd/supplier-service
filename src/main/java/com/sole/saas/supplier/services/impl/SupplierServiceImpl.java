@@ -48,10 +48,12 @@ public class SupplierServiceImpl implements ISupplierInfoService {
 
     private final RedisUtils redisUtils;
 
+    private final ICheckOpinionRepository checkOpinionRepository;
+
     public SupplierServiceImpl(ISupplierBasicInfoRepository supplierBasicInfoRepository, IQualificationInfoRepository qualificationInfoRepository,
                                IRegisterInfoRepository registerInfoRepository, ISupplierUserInfoRepository supplierUserInfoRepository,
                                ISupplierBuyerUserRepository supplierBuyerUserRepository, ISupplierDictRepository supplierDictRepository,
-                               RedisUtils redisUtils) {
+                               RedisUtils redisUtils, ICheckOpinionRepository checkOpinionRepository) {
         this.supplierBasicInfoRepository = supplierBasicInfoRepository;
         this.qualificationInfoRepository = qualificationInfoRepository;
         this.registerInfoRepository = registerInfoRepository;
@@ -59,6 +61,7 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         this.supplierBuyerUserRepository = supplierBuyerUserRepository;
         this.supplierDictRepository = supplierDictRepository;
         this.redisUtils = redisUtils;
+        this.checkOpinionRepository = checkOpinionRepository;
     }
 
     @Override

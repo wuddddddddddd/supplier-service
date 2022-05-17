@@ -16,7 +16,11 @@ public enum BusinessStatusEnum {
 
     DRAFT(2, "草稿"),
 
-    IN_PROCESS(3, "审批中");
+    IN_PROCESS(3, "审批中"),
+
+    PROCESS_REJECT(4, "审批驳回"),
+
+    PROCESS_SUCCESS(5, "审批通过");
 
     private int code;
 

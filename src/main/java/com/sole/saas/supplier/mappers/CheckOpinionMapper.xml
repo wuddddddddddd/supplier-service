@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sole.saas.supplier.mappers.CheckOpinionMapper">
+    <resultMap id="checkOpinionPo" type="com.sole.saas.supplier.models.po.CheckOpinionPo">
+        <id property="id" column="id" jdbcType="NUMERIC"/>
+    </resultMap>
+
+    <sql id="tableName">
+        supplier_check_opinion co
+    </sql>
+
+    <sql id="columns">
+        co.id
+    </sql>
+
+
+
+</mapper>
