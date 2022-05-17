@@ -29,10 +29,10 @@ public class RegisterInfoResponse implements Serializable {
     private Long supplierId;
 
     @ApiModelProperty(value = "注册资金(万元)")
-    private BigDecimal registered_capital;
+    private BigDecimal registeredCapital;
 
     @ApiModelProperty(value = "公司注册成立日期")
-    private Date registered_date;
+    private Date registeredDate;
 
     @ApiModelProperty(value = "注册地区id(省)")
     private Long provinceId;

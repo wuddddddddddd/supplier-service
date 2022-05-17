@@ -1,4 +1,4 @@
-package com.sole.saas.supplier.models.response;
+package com.sole.saas.supplier.models.request;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import io.swagger.annotations.ApiModel;
@@ -14,10 +14,10 @@ import java.util.Date;
  * @description
  * @date 2022-05-17
  */
-@ApiModel(value="供应商分页信息响应实体")
+@ApiModel(value="供应商分页信息请求实体")
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class SupplierPageResponse implements Serializable {
+public class SupplierPageRequest extends BaseRequest implements Serializable {
     private static final long serialVersionUID = -50528329626207437L;
 
     @ApiModelProperty(value = "主键ID")
@@ -79,9 +79,5 @@ public class SupplierPageResponse implements Serializable {
 
     @ApiModelProperty(value = "所属采购员ID")
     private Long buyerUserId;
-
-
-    @ApiModelProperty(value = "经营类型对应业务字典ID")
-    private String manageTypeName;
 
 }

@@ -4,6 +4,8 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sole.saas.common.constant.Constant;
 import com.sole.saas.common.utils.ExceptionUtils;
 import com.sole.saas.common.utils.RedisUtils;
@@ -230,5 +232,15 @@ public class SupplierServiceImpl implements ISupplierInfoService {
     public void delSupplier(Long supplierId) {
         logger.info("[删除供应商]---供应商ID为{}", supplierId);
         supplierBasicInfoRepository.updateByOneParams(SupplierBasicInfoPo::getStatus, Constant.STATUS_DEL, SupplierBasicInfoPo::getId, supplierId);
+    }
+
+    @Override
+    public IPage<SupplierPageResponse> getSupplierPageByParams(SupplierPageRequest request) {
+        logger.info("[查询供应商分页信息]");
+        Page<SupplierBasicInfoPo> page = new Page<>(request.getPageIndex(), request.getPageSize());
+        final IPage<SupplierPageResponse> pageResponse = supplierBasicInfoRepository.getCustomerPage(page, request);
+        // 分页信息组装
+
+        return pageResponse;
     }
 }
