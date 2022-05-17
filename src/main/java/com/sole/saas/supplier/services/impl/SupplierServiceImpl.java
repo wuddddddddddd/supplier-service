@@ -1,9 +1,14 @@
 package com.sole.saas.supplier.services.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import com.sole.saas.common.constant.Constant;
 import com.sole.saas.common.utils.ExceptionUtils;
+import com.sole.saas.common.utils.RedisUtils;
 import com.sole.saas.supplier.constant.BusinessStatusEnum;
+import com.sole.saas.supplier.constant.SupplierConstant;
 import com.sole.saas.supplier.constant.SupplierDictCodeEnum;
 import com.sole.saas.supplier.cvts.*;
 import com.sole.saas.supplier.models.po.*;
@@ -41,15 +46,19 @@ public class SupplierServiceImpl implements ISupplierInfoService {
 
     private final ISupplierDictRepository supplierDictRepository;
 
+    private final RedisUtils redisUtils;
+
     public SupplierServiceImpl(ISupplierBasicInfoRepository supplierBasicInfoRepository, IQualificationInfoRepository qualificationInfoRepository,
                                IRegisterInfoRepository registerInfoRepository, ISupplierUserInfoRepository supplierUserInfoRepository,
-                               ISupplierBuyerUserRepository supplierBuyerUserRepository, ISupplierDictRepository supplierDictRepository) {
+                               ISupplierBuyerUserRepository supplierBuyerUserRepository, ISupplierDictRepository supplierDictRepository,
+                               RedisUtils redisUtils) {
         this.supplierBasicInfoRepository = supplierBasicInfoRepository;
         this.qualificationInfoRepository = qualificationInfoRepository;
         this.registerInfoRepository = registerInfoRepository;
         this.supplierUserInfoRepository = supplierUserInfoRepository;
         this.supplierBuyerUserRepository = supplierBuyerUserRepository;
         this.supplierDictRepository = supplierDictRepository;
+        this.redisUtils = redisUtils;
     }
 
     @Override
@@ -81,6 +90,12 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         supplierUserInfoPo.setName(request.getUserName());
         supplierUserInfoPo.setTelephone(request.getUserTelephone());
         supplierUserInfoPo.setEmail(request.getUserEmail());
+        // 账号: 8位数字 + 字母
+        final String number = RandomUtil.randomNumbers(8);
+        final String charNumber = RandomUtil.randomString(3);
+        final String random = number + charNumber;
+        supplierUserInfoPo.setAccount(random);
+        supplierUserInfoPo.setPassword(random);
         supplierUserInfoRepository.save(supplierUserInfoPo);
 
         // 添加采购员信息
@@ -99,6 +114,13 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         final SupplierBasicInfoRequest basicInfoRequest = request.getBasicInfoRequest();
         final SupplierBasicInfoPo basicInfoPo = SupplierBasicInfoCvt.INSTANCE.requestToPo(basicInfoRequest);
         basicInfoPo.setBusinessStatus(isDraft ? BusinessStatusEnum.DRAFT.getCode() : BusinessStatusEnum.IN_PROCESS.getCode());
+        if (!isDraft && StrUtil.isBlank(basicInfoRequest.getCode())) {
+            // 供应商编码: GYS+创建年月日+6位随机数字
+            final long code = redisUtils.incr("SUPPLIER_CODE", 1);
+            String format = String.format("%06d", code);
+            String supplierCode = SupplierConstant.SUPPLIER_CODE_KEY + DateUtil.today() + format;
+            basicInfoPo.setCode(supplierCode);
+        }
         supplierBasicInfoRepository.updateById(basicInfoPo);
 
         // 主营行业信息
@@ -144,6 +166,7 @@ public class SupplierServiceImpl implements ISupplierInfoService {
 
     @Override
     public SupplierResponse getSupplierInfoById(Long supplierId) {
+        logger.info("[获取供应商详细信息]---供应商ID为{}", supplierId);
 
         SupplierResponse response = new SupplierResponse();
         // 获取供应商基础信息
@@ -197,5 +220,12 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         response.setSupplierBuyerUserResponse(buyerUserResponse);
 
         return response;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void delSupplier(Long supplierId) {
+        logger.info("[删除供应商]---供应商ID为{}", supplierId);
+        supplierBasicInfoRepository.updateByOneParams(SupplierBasicInfoPo::getStatus, Constant.STATUS_DEL, SupplierBasicInfoPo::getId, supplierId);
     }
 }

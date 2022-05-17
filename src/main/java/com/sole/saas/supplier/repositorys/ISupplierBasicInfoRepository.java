@@ -1,5 +1,6 @@
 package com.sole.saas.supplier.repositorys;
 
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sole.saas.supplier.models.po.SupplierBasicInfoPo;
 
@@ -10,4 +11,6 @@ import com.sole.saas.supplier.models.po.SupplierBasicInfoPo;
  */
 public interface ISupplierBasicInfoRepository extends IService<SupplierBasicInfoPo> {
 
+    int updateByOneParams(SFunction<SupplierBasicInfoPo, ?> updateColumn, Object updateValue,
+                          SFunction<SupplierBasicInfoPo, ?> conditionColumn, Object conditionValue);
 }

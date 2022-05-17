@@ -16,4 +16,6 @@ public interface ISupplierInfoService {
     void addSupplier(SupplierRequest request, boolean isDraft);
 
     SupplierResponse getSupplierInfoById(Long supplierId);
+
+    void delSupplier(Long supplierId);
 }

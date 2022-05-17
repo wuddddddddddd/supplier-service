@@ -31,6 +31,9 @@ public class SupplierBasicInfoPo extends Model<SupplierBasicInfoPo> {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
+    @ApiModelProperty(value = "来源")
+    private Integer source;
+
     @ApiModelProperty(value = "供应商编码")
     private String code;
 
