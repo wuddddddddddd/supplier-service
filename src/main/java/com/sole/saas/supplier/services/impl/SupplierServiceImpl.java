@@ -23,8 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -50,12 +49,13 @@ public class SupplierServiceImpl implements ISupplierInfoService {
 
     private final RedisUtils redisUtils;
 
-    private final ICheckOpinionRepository checkOpinionRepository;
+    private final IDictInfoRepository dictInfoRepository;
+
 
     public SupplierServiceImpl(ISupplierBasicInfoRepository supplierBasicInfoRepository, IQualificationInfoRepository qualificationInfoRepository,
                                IRegisterInfoRepository registerInfoRepository, ISupplierUserInfoRepository supplierUserInfoRepository,
                                ISupplierBuyerUserRepository supplierBuyerUserRepository, ISupplierDictRepository supplierDictRepository,
-                               RedisUtils redisUtils, ICheckOpinionRepository checkOpinionRepository) {
+                               RedisUtils redisUtils, IDictInfoRepository dictInfoRepository) {
         this.supplierBasicInfoRepository = supplierBasicInfoRepository;
         this.qualificationInfoRepository = qualificationInfoRepository;
         this.registerInfoRepository = registerInfoRepository;
@@ -63,7 +63,7 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         this.supplierBuyerUserRepository = supplierBuyerUserRepository;
         this.supplierDictRepository = supplierDictRepository;
         this.redisUtils = redisUtils;
-        this.checkOpinionRepository = checkOpinionRepository;
+        this.dictInfoRepository = dictInfoRepository;
     }
 
     @Override
@@ -239,8 +239,41 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         logger.info("[查询供应商分页信息]");
         Page<SupplierBasicInfoPo> page = new Page<>(request.getPageIndex(), request.getPageSize());
         final IPage<SupplierPageResponse> pageResponse = supplierBasicInfoRepository.getCustomerPage(page, request);
+        if (pageResponse.getTotal() <= 0) {
+            return pageResponse;
+        }
         // 分页信息组装
-
+        final List<SupplierPageResponse> list = pageResponse.getRecords();
+        this.getSupplierPageInfo(list);
         return pageResponse;
+    }
+
+    private void getSupplierPageInfo(List<SupplierPageResponse> list) {
+        // 经营类型ID集
+        Set<Long> manageTypeIdSet = new HashSet<>();
+        for (SupplierPageResponse response : list) {
+            manageTypeIdSet.add(response.getManageTypeId());
+        }
+        // 经营类型<经营类型ID, 业务字典集>
+        Map<Long, DictInfoPo> dictMap = new HashMap<>();
+        if (CollectionUtil.isNotEmpty(manageTypeIdSet)) {
+            DictInfoRequest dictInfoRequest = new DictInfoRequest();
+            dictInfoRequest.setIdList(new ArrayList<>(manageTypeIdSet));
+            final List<DictInfoPo> dictInfoPoList = dictInfoRepository.getListByParams(dictInfoRequest);
+            if (CollectionUtil.isNotEmpty(dictInfoPoList)) {
+                dictMap = dictInfoPoList.stream().collect(Collectors.toMap(DictInfoPo::getId, e -> e, (k1, k2) -> k1));
+            }
+        }
+
+        // 组装数据
+        for (SupplierPageResponse response : list) {
+            final Long manageTypeId = response.getManageTypeId();
+            if (dictMap.containsKey(manageTypeId)) {
+                final DictInfoPo dictInfoPo = dictMap.get(manageTypeId);
+                response.setManageTypeName(dictInfoPo.getName());
+            }
+        }
+
+
     }
 }
