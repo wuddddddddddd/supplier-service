@@ -1,9 +1,12 @@
 package com.sole.saas.supplier.services.impl;
 
+import com.sole.saas.common.constant.Constant;
+import com.sole.saas.common.utils.ExceptionUtils;
 import com.sole.saas.supplier.constant.BusinessStatusEnum;
 import com.sole.saas.supplier.cvts.*;
 import com.sole.saas.supplier.models.po.*;
 import com.sole.saas.supplier.models.request.*;
+import com.sole.saas.supplier.models.response.*;
 import com.sole.saas.supplier.repositorys.*;
 import com.sole.saas.supplier.services.ISupplierInfoService;
 import org.slf4j.Logger;
@@ -81,6 +84,7 @@ public class SupplierServiceImpl implements ISupplierInfoService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void addSupplier(SupplierRequest request, boolean isDraft) {
+        logger.info("[完善供应商信息]---供应商ID为{}", request.getBasicInfoRequest().getId());
 
         // 供应商基础信息
         final SupplierBasicInfoRequest basicInfoRequest = request.getBasicInfoRequest();
@@ -107,5 +111,51 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         final SupplierBuyerUserRequest buyerUserRequest = request.getSupplierBuyerUserRequest();
         final SupplierBuyerUserPo buyerUserPo = SupplierBuyerUserCvt.INSTANCE.requestToPo(buyerUserRequest);
         supplierBuyerUserRepository.updateById(buyerUserPo);
+    }
+
+    @Override
+    public SupplierResponse getSupplierInfoById(Long supplierId) {
+
+        SupplierResponse response = new SupplierResponse();
+        // 获取供应商基础信息
+        final SupplierBasicInfoPo basicInfoPo = supplierBasicInfoRepository.getById(supplierId);
+        ExceptionUtils.error(null == basicInfoPo)
+                        .errorMessage(null, "根据供应商ID{}未获取到对应的供应商信息", supplierId);
+        final SupplierBasicInfoResponse basicInfoResponse = SupplierBasicInfoCvt.INSTANCE.poToResponse(basicInfoPo);
+        response.setBasicInfoResponse(basicInfoResponse);
+
+        // 资质信息
+        QualificationInfoRequest qualificationInfoRequest = new QualificationInfoRequest();
+        qualificationInfoRequest.setSupplierId(supplierId);
+        qualificationInfoRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final QualificationInfoPo qualificationInfo = qualificationInfoRepository.getByParams(qualificationInfoRequest);
+        final QualificationInfoResponse qualificationInfoResponse = QualificationInfoCvt.INSTANCE.poToResponse(qualificationInfo);
+        response.setQualificationInfoResponse(qualificationInfoResponse);
+
+        // 供应商联系人信息
+        SupplierUserInfoRequest userInfoRequest = new SupplierUserInfoRequest();
+        userInfoRequest.setSupplierId(supplierId);
+        userInfoRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final SupplierUserInfoPo userInfoPo = supplierUserInfoRepository.getByParams(userInfoRequest);
+        final SupplierUserInfoResponse userInfoResponse = SupplierUserInfoCvt.INSTANCE.poToResponse(userInfoPo);
+        response.setSupplierUserInfoResponse(userInfoResponse);
+
+        // 公司注册信息
+        RegisterInfoRequest registerInfoRequest = new RegisterInfoRequest();
+        registerInfoRequest.setSupplierId(supplierId);
+        registerInfoRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final RegisterInfoPo registerInfoPo = registerInfoRepository.getByParams(registerInfoRequest);
+        final RegisterInfoResponse registerInfoResponse = RegisterInfoCvt.INSTANCE.poToResponse(registerInfoPo);
+        response.setRegisterInfoResponse(registerInfoResponse);
+
+        // 采购员信息
+        SupplierBuyerUserRequest buyerUserRequest = new SupplierBuyerUserRequest();
+        buyerUserRequest.setBuyerUserId(supplierId);
+        buyerUserRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final SupplierBuyerUserPo buyerUserPo = supplierBuyerUserRepository.getByParams(buyerUserRequest);
+        final SupplierBuyerUserResponse buyerUserResponse = SupplierBuyerUserCvt.INSTANCE.poToResponse(buyerUserPo);
+        response.setSupplierBuyerUserResponse(buyerUserResponse);
+
+        return response;
     }
 }

@@ -30,6 +30,12 @@ public class SupplierUserInfoPo extends Model<SupplierUserInfoPo> {
     @ApiModelProperty(value = "供应商基础信息主键ID")
     private Long supplierId;
 
+    @ApiModelProperty(value = "账号")
+    private String account;
+
+    @ApiModelProperty(value = "密码")
+    private String password;
+
     @ApiModelProperty(value = "联系人")
     private String name;
 

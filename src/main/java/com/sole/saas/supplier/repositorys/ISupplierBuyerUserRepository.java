@@ -2,6 +2,7 @@ package com.sole.saas.supplier.repositorys;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sole.saas.supplier.models.po.SupplierBuyerUserPo;
+import com.sole.saas.supplier.models.request.SupplierBuyerUserRequest;
 
 /**
  * @author wjd
@@ -9,5 +10,7 @@ import com.sole.saas.supplier.models.po.SupplierBuyerUserPo;
  * @date 2022-05-16
  */
 public interface ISupplierBuyerUserRepository extends IService<SupplierBuyerUserPo> {
+
+    SupplierBuyerUserPo getByParams(SupplierBuyerUserRequest request);
 
 }

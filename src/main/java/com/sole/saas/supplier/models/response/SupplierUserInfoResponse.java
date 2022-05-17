@@ -1,4 +1,4 @@
-package com.sole.saas.supplier.models.request;
+package com.sole.saas.supplier.models.response;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -6,20 +6,18 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @author wjd
- * @description 供应商联系人信息请求射实体.
+ * @description 供应商联系人信息响应实体.
  * @date 2022-05-16
  */
-@ApiModel(value="供应商联系人信息请求射实体")
+@ApiModel(value="供应商联系人信息响应实体")
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class SupplierUserInfoRequest implements Serializable {
+public class SupplierUserInfoResponse implements Serializable {
 
-    private static final long serialVersionUID = 2208122273180937740L;
-
+    private static final long serialVersionUID = -5693356269450569686L;
 
     @ApiModelProperty(value = "主键ID")
     private Long id;
@@ -46,17 +44,17 @@ public class SupplierUserInfoRequest implements Serializable {
     private String remark;
 
     @ApiModelProperty(value = "创建人")
-    private Date createUserId;
+    private String createUserId;
 
     @ApiModelProperty(value = "创建时间")
     private String createTime;
 
     @ApiModelProperty(value = "修改人")
-    private Date updateUserId;
+    private String updateUserId;
 
     @ApiModelProperty(value = "修改时间")
     private String updateTime;
 
     @ApiModelProperty(value = "状态")
-    private Integer status;
+    private String status;
 }

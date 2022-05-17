@@ -2,6 +2,7 @@ package com.sole.saas.supplier.cvts;
 
 import com.sole.saas.supplier.models.po.QualificationInfoPo;
 import com.sole.saas.supplier.models.request.QualificationInfoRequest;
+import com.sole.saas.supplier.models.response.QualificationInfoResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
@@ -17,4 +18,6 @@ public interface QualificationInfoCvt {
 
 
     QualificationInfoPo  requestToPo(QualificationInfoRequest request);
+
+    QualificationInfoResponse poToResponse(QualificationInfoPo po);
 }

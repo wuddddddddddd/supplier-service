@@ -2,6 +2,7 @@ package com.sole.saas.supplier.cvts;
 
 import com.sole.saas.supplier.models.po.SupplierUserInfoPo;
 import com.sole.saas.supplier.models.request.SupplierUserInfoRequest;
+import com.sole.saas.supplier.models.response.SupplierUserInfoResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
@@ -16,4 +17,6 @@ public interface SupplierUserInfoCvt {
     SupplierUserInfoCvt INSTANCE = Mappers.getMapper(SupplierUserInfoCvt.class);
 
     SupplierUserInfoPo requestToPo(SupplierUserInfoRequest request);
+
+    SupplierUserInfoResponse poToResponse(SupplierUserInfoPo po);
 }
