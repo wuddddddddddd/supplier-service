@@ -20,7 +20,9 @@ public enum BusinessStatusEnum {
 
     PROCESS_REJECT(4, "审批驳回"),
 
-    PROCESS_SUCCESS(5, "审批通过");
+    PROCESS_SUCCESS(5, "审批通过"),
+
+    STOP_COOPERATION(6, "终止合作");
 
     private int code;
 

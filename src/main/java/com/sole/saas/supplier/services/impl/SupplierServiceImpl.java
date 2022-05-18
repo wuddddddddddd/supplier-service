@@ -9,9 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sole.saas.common.constant.Constant;
 import com.sole.saas.common.utils.ExceptionUtils;
 import com.sole.saas.common.utils.RedisUtils;
-import com.sole.saas.supplier.constant.BusinessStatusEnum;
-import com.sole.saas.supplier.constant.SupplierConstant;
-import com.sole.saas.supplier.constant.SupplierDictCodeEnum;
+import com.sole.saas.supplier.constant.*;
 import com.sole.saas.supplier.cvts.*;
 import com.sole.saas.supplier.models.po.*;
 import com.sole.saas.supplier.models.request.*;
@@ -51,11 +49,14 @@ public class SupplierServiceImpl implements ISupplierInfoService {
 
     private final IDictInfoRepository dictInfoRepository;
 
+    private final IBusinessHistoryRepository businessHistoryRepository;
+
 
     public SupplierServiceImpl(ISupplierBasicInfoRepository supplierBasicInfoRepository, IQualificationInfoRepository qualificationInfoRepository,
                                IRegisterInfoRepository registerInfoRepository, ISupplierUserInfoRepository supplierUserInfoRepository,
                                ISupplierBuyerUserRepository supplierBuyerUserRepository, ISupplierDictRepository supplierDictRepository,
-                               RedisUtils redisUtils, IDictInfoRepository dictInfoRepository) {
+                               RedisUtils redisUtils, IDictInfoRepository dictInfoRepository,
+                               IBusinessHistoryRepository businessHistoryRepository) {
         this.supplierBasicInfoRepository = supplierBasicInfoRepository;
         this.qualificationInfoRepository = qualificationInfoRepository;
         this.registerInfoRepository = registerInfoRepository;
@@ -64,6 +65,7 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         this.supplierDictRepository = supplierDictRepository;
         this.redisUtils = redisUtils;
         this.dictInfoRepository = dictInfoRepository;
+        this.businessHistoryRepository = businessHistoryRepository;
     }
 
     @Override
@@ -118,6 +120,7 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         // 供应商基础信息
         final SupplierBasicInfoRequest basicInfoRequest = request.getBasicInfoRequest();
         final SupplierBasicInfoPo basicInfoPo = SupplierBasicInfoCvt.INSTANCE.requestToPo(basicInfoRequest);
+        basicInfoPo.setSelfSupportType(SelfSupportEnum.OTHER.getCode());
         basicInfoPo.setBusinessStatus(isDraft ? BusinessStatusEnum.DRAFT.getCode() : BusinessStatusEnum.IN_PROCESS.getCode());
         if (!isDraft && StrUtil.isBlank(basicInfoRequest.getCode())) {
             // 供应商编码: GYS+创建年月日+6位随机数字
@@ -231,7 +234,8 @@ public class SupplierServiceImpl implements ISupplierInfoService {
     @Transactional(rollbackFor = Exception.class)
     public void delSupplier(Long supplierId) {
         logger.info("[删除供应商]---供应商ID为{}", supplierId);
-        supplierBasicInfoRepository.updateByOneParams(SupplierBasicInfoPo::getStatus, Constant.STATUS_DEL, SupplierBasicInfoPo::getId, supplierId);
+        supplierBasicInfoRepository.updateByOneParams(SupplierBasicInfoPo::getStatus, Constant.STATUS_DEL,
+                SupplierBasicInfoPo::getId, supplierId);
     }
 
     @Override
@@ -247,6 +251,77 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         this.getSupplierPageInfo(list);
         return pageResponse;
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void remarkSelfSupport(Long supplierId) {
+        logger.info("[供应商标记自营]---供应商ID为{}", supplierId);
+        supplierBasicInfoRepository.updateByOneParams(SupplierBasicInfoPo::getSelfSupportType,
+                SelfSupportEnum.OWNER, SupplierBasicInfoPo::getId, supplierId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void cancelSelfSupport(Long supplierId) {
+        logger.info("[供应商取消自营]---供应商ID为{}", supplierId);
+        supplierBasicInfoRepository.updateByOneParams(SupplierBasicInfoPo::getSelfSupportType, SelfSupportEnum.OTHER.getCode(),
+                SupplierBasicInfoPo::getId, supplierId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void stopCooperation(Long supplierId, String reason) {
+        logger.info("[供应商终止合作]----供应商ID为{}", supplierId);
+        final SupplierBasicInfoPo basicInfoPo = supplierBasicInfoRepository.getById(supplierId);
+        ExceptionUtils.error(null == basicInfoPo)
+                .errorMessage(null, "根据供应商ID{}未查询到信息", supplierId);
+
+        // 修改业务状态为终止合作状态
+        supplierBasicInfoRepository.updateByOneParams(SupplierBasicInfoPo::getBusinessStatus,
+                BusinessStatusEnum.STOP_COOPERATION.getCode(), SupplierBasicInfoPo::getId, supplierId);
+
+        // 历史记录表记录业务状态变更
+        // 根据供应商ID逻辑删除历史信息
+        businessHistoryRepository.updateByOneParams(BusinessHistoryPo::getStatus, Constant.STATUS_DEL,
+                BusinessHistoryPo::getBusinessId, supplierId);
+        // 新增变更记录
+        BusinessHistoryPo businessHistoryPo = new BusinessHistoryPo();
+        businessHistoryPo.setType(HistoryTypeEnum.SUPPLIER.getCode());
+        businessHistoryPo.setBusinessId(supplierId);
+        businessHistoryPo.setBusinessStatus(BusinessStatusEnum.STOP_COOPERATION.getCode());
+        businessHistoryPo.setOldBusinessStatus(basicInfoPo.getBusinessStatus());
+        businessHistoryPo.setRemark(reason);
+        businessHistoryRepository.save(businessHistoryPo);
+
+        // 调用接口,所有商品下架
+        /*final boolean isTrue = null == response || response.getError().getCode() != HttpStatus.OK.value();
+        ExceptionUtils.error(isTrue)
+                .errorMessage(null, "商品下架异常");*/
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void recoverCooperation(Long supplierId) {
+        logger.info("[供应商恢复合作]----供应商ID为{}", supplierId);
+
+        // 获取历史业务记录表信息
+        BusinessHistoryRequest businessHistoryRequest = new BusinessHistoryRequest();
+        businessHistoryRequest.setType(HistoryTypeEnum.SUPPLIER.getCode());
+        businessHistoryRequest.setBusinessId(supplierId);
+        businessHistoryRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final BusinessHistoryPo historyPo = businessHistoryRepository.getByParams(businessHistoryRequest);
+        ExceptionUtils.error(null == historyPo)
+                .errorMessage(null, "根据变更类型{}供应商ID{}未查询到历史业务变更信息", HistoryTypeEnum.SUPPLIER.getCode(), supplierId);
+
+        // 恢复终止合作前的业务状态
+        supplierBasicInfoRepository.updateByOneParams(SupplierBasicInfoPo::getBusinessStatus,
+                historyPo.getOldBusinessStatus(), SupplierBasicInfoPo::getId, supplierId);
+    }
+
+
+
+
+
 
     private void getSupplierPageInfo(List<SupplierPageResponse> list) {
         // 经营类型ID集
@@ -273,7 +348,5 @@ public class SupplierServiceImpl implements ISupplierInfoService {
                 response.setManageTypeName(dictInfoPo.getName());
             }
         }
-
-
     }
 }

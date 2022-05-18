@@ -23,4 +23,12 @@ public interface ISupplierInfoService {
     void delSupplier(Long supplierId);
 
     IPage<SupplierPageResponse> getSupplierPageByParams(SupplierPageRequest request);
+
+    void remarkSelfSupport(Long supplierId);
+
+    void cancelSelfSupport(Long supplierId);
+
+    void stopCooperation(Long supplierId, String reason);
+
+    void recoverCooperation(Long supplierId);
 }
