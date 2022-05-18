@@ -22,7 +22,9 @@ public enum BusinessStatusEnum {
 
     PROCESS_SUCCESS(5, "审批通过"),
 
-    STOP_COOPERATION(6, "终止合作");
+    STOP_COOPERATION(6, "终止合作"),
+
+    BLACK(7, "加黑");
 
     private int code;
 

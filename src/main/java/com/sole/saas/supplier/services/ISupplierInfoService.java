@@ -31,4 +31,6 @@ public interface ISupplierInfoService {
     void stopCooperation(Long supplierId, String reason);
 
     void recoverCooperation(Long supplierId);
+
+    void joinBlack(Long supplierId, String reason);
 }

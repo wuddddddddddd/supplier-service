@@ -318,10 +318,31 @@ public class SupplierServiceImpl implements ISupplierInfoService {
                 historyPo.getOldBusinessStatus(), SupplierBasicInfoPo::getId, supplierId);
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void joinBlack(Long supplierId, String reason) {
+        logger.info("[供应商加黑]----供应商ID为{}", supplierId);
+        final SupplierBasicInfoPo basicInfoPo = supplierBasicInfoRepository.getById(supplierId);
+        ExceptionUtils.error(null == basicInfoPo)
+                .errorMessage(null, "根据供应商ID{}未查询到信息", supplierId);
 
+        // 修改业务状态为加黑状态
+        supplierBasicInfoRepository.updateByOneParams(SupplierBasicInfoPo::getBusinessStatus,
+                BusinessStatusEnum.BLACK.getCode(), SupplierBasicInfoPo::getId, supplierId);
 
-
-
+        // 历史记录表记录业务状态变更
+        // 根据供应商ID逻辑删除历史信息
+        businessHistoryRepository.updateByOneParams(BusinessHistoryPo::getStatus, Constant.STATUS_DEL,
+                BusinessHistoryPo::getBusinessId, supplierId);
+        // 新增变更记录
+        BusinessHistoryPo businessHistoryPo = new BusinessHistoryPo();
+        businessHistoryPo.setType(HistoryTypeEnum.SUPPLIER.getCode());
+        businessHistoryPo.setBusinessId(supplierId);
+        businessHistoryPo.setBusinessStatus(BusinessStatusEnum.BLACK.getCode());
+        businessHistoryPo.setOldBusinessStatus(basicInfoPo.getBusinessStatus());
+        businessHistoryPo.setRemark(reason);
+        businessHistoryRepository.save(businessHistoryPo);
+    }
 
     private void getSupplierPageInfo(List<SupplierPageResponse> list) {
         // 经营类型ID集
