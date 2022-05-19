@@ -3,6 +3,8 @@ package com.sole.saas.supplier.services.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sole.saas.common.constant.Constant;
 import com.sole.saas.common.utils.ExceptionUtils;
 import com.sole.saas.common.utils.RedisUtils;
@@ -14,6 +16,7 @@ import com.sole.saas.supplier.models.request.*;
 import com.sole.saas.supplier.models.response.*;
 import com.sole.saas.supplier.repositorys.*;
 import com.sole.saas.supplier.services.ISupplierLogService;
+import com.sole.saas.supplier.utils.SupplierUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -57,13 +60,15 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
 
     private final RedisUtils redisUtils;
 
+    private final SupplierUtil supplierUtil;
+
     public SupplierLogServiceImpl(ISupplierBasicInfoRepository supplierBasicInfoRepository, IQualificationInfoRepository qualificationInfoRepository,
                                   ISupplierIndustryRepository supplierIndustryRepository, IRegisterInfoRepository registerInfoRepository,
                                   ISupplierUserInfoRepository supplierUserInfoRepository, ISupplierBuyerUserRepository supplierBuyerUserRepository,
                                   ISupplierBasicInfoLogRepository supplierBasicInfoLogRepository, IQualificationInfoLogRepository qualificationInfoLogRepository,
                                   ISupplierIndustryLogRepository supplierIndustryLogRepository, IRegisterInfoLogRepository registerInfoLogRepository,
                                   ISupplierUserInfoLogRepository supplierUserInfoLogRepository, ISupplierBuyerUserLogRepository supplierBuyerUserLogRepository,
-                                  RedisUtils redisUtils) {
+                                  RedisUtils redisUtils, SupplierUtil supplierUtil) {
         this.supplierBasicInfoRepository = supplierBasicInfoRepository;
         this.qualificationInfoRepository = qualificationInfoRepository;
         this.supplierIndustryRepository = supplierIndustryRepository;
@@ -77,6 +82,7 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         this.supplierUserInfoLogRepository = supplierUserInfoLogRepository;
         this.supplierBuyerUserLogRepository = supplierBuyerUserLogRepository;
         this.redisUtils = redisUtils;
+        this.supplierUtil = supplierUtil;
     }
 
 
@@ -104,14 +110,6 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         // 保存日志信息
         final QualificationInfoLogPo qualificationInfoLogPo = QualificationInfoCvt.INSTANCE.poToLogPo(qualificationInfoPo);
         qualificationInfoLogRepository.save(qualificationInfoLogPo);
-
-        // 创建一条空的公司注册信息
-        RegisterInfoPo registerInfoPo = new RegisterInfoPo();
-        registerInfoPo.setSupplierId(supplierId);
-        registerInfoRepository.save(registerInfoPo);
-        // 保存日志信息
-        final RegisterInfoLogPo registerInfoLogPo = RegisterInfoCvt.INSTANCE.poToLogPo(registerInfoPo);
-        registerInfoLogRepository.save(registerInfoLogPo);
 
         // 添加供应商联系人
         SupplierUserInfoPo supplierUserInfoPo = new SupplierUserInfoPo();
@@ -278,5 +276,19 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         response.setSupplierBuyerUserResponse(buyerUserResponse);
 
         return response;
+    }
+
+    @Override
+    public IPage<SupplierPageResponse> getSupplierLogPageByParams(SupplierPageRequest request) {
+        logger.info("[查询供应商记录分页信息]");
+        Page<SupplierBasicInfoPo> page = new Page<>(request.getPageIndex(), request.getPageSize());
+        final IPage<SupplierPageResponse> pageResponse = supplierBasicInfoLogRepository.getCustomerLogPage(page, request);
+        if (pageResponse.getTotal() <= 0) {
+            return pageResponse;
+        }
+        // 分页信息组装
+        final List<SupplierPageResponse> list = pageResponse.getRecords();
+        supplierUtil.getSupplierPageInfo(list);
+        return pageResponse;
     }
 }

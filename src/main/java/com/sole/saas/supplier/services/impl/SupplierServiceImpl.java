@@ -1,14 +1,9 @@
 package com.sole.saas.supplier.services.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sole.saas.common.constant.Constant;
 import com.sole.saas.common.utils.ExceptionUtils;
-import com.sole.saas.common.utils.RedisUtils;
 import com.sole.saas.supplier.constant.*;
 import com.sole.saas.supplier.cvts.*;
 import com.sole.saas.supplier.models.po.*;
@@ -16,13 +11,13 @@ import com.sole.saas.supplier.models.request.*;
 import com.sole.saas.supplier.models.response.*;
 import com.sole.saas.supplier.repositorys.*;
 import com.sole.saas.supplier.services.ISupplierInfoService;
+import com.sole.saas.supplier.utils.SupplierUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @description: TODO
@@ -43,25 +38,25 @@ public class SupplierServiceImpl implements ISupplierInfoService {
 
     private final ISupplierBuyerUserRepository supplierBuyerUserRepository;
 
-    private final ISupplierDictRepository supplierDictRepository;
-
-    private final IDictInfoRepository dictInfoRepository;
+    private final ISupplierIndustryRepository supplierIndustryRepository;
 
     private final IBusinessHistoryRepository businessHistoryRepository;
+
+    private final SupplierUtil supplierUtil;
 
 
     public SupplierServiceImpl(ISupplierBasicInfoRepository supplierBasicInfoRepository, IQualificationInfoRepository qualificationInfoRepository,
                                IRegisterInfoRepository registerInfoRepository, ISupplierUserInfoRepository supplierUserInfoRepository,
-                               ISupplierBuyerUserRepository supplierBuyerUserRepository, ISupplierDictRepository supplierDictRepository,
-                               IDictInfoRepository dictInfoRepository, IBusinessHistoryRepository businessHistoryRepository) {
+                               ISupplierBuyerUserRepository supplierBuyerUserRepository, ISupplierIndustryRepository supplierIndustryRepository,
+                               IBusinessHistoryRepository businessHistoryRepository, SupplierUtil supplierUtil) {
         this.supplierBasicInfoRepository = supplierBasicInfoRepository;
         this.qualificationInfoRepository = qualificationInfoRepository;
         this.registerInfoRepository = registerInfoRepository;
         this.supplierUserInfoRepository = supplierUserInfoRepository;
         this.supplierBuyerUserRepository = supplierBuyerUserRepository;
-        this.supplierDictRepository = supplierDictRepository;
-        this.dictInfoRepository = dictInfoRepository;
+        this.supplierIndustryRepository = supplierIndustryRepository;
         this.businessHistoryRepository = businessHistoryRepository;
+        this.supplierUtil = supplierUtil;
     }
 
     @Override
@@ -77,15 +72,13 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         response.setBasicInfoResponse(basicInfoResponse);
 
         // 主营行业信息
-        SupplierDictRequest supplierDictRequest = new SupplierDictRequest();
-        supplierDictRequest.setSupplierId(supplierId);
-        supplierDictRequest.setCode(SupplierDictCodeEnum.INDUSTRY.getCode());
-        supplierDictRequest.setStatus(Constant.STATUS_NOT_DEL);
-        final List<SupplierDictPo> supplierDictPoList = supplierDictRepository.getListByParams(supplierDictRequest);
-        if (CollectionUtil.isNotEmpty(supplierDictPoList)) {
-            final List<Long> industryIdList = supplierDictPoList.stream().map(SupplierDictPo::getDictId).collect(Collectors.toList());
-            response.setIndustryList(industryIdList);
-        }
+        SupplierIndustryRequest industryRequest = new SupplierIndustryRequest();
+        industryRequest.setSupplierId(supplierId);
+        industryRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final List<SupplierIndustryPo> industryPoList = supplierIndustryRepository.getListByParams(industryRequest);
+        final List<SupplierIndustryResponse> industryResponseList = SupplierIndustryCvt.INSTANCE.poToResponse(industryPoList);
+        response.setIndustryResponseList(industryResponseList);
+
 
         // 资质信息
         QualificationInfoRequest qualificationInfoRequest = new QualificationInfoRequest();
@@ -132,7 +125,7 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         }
         // 分页信息组装
         final List<SupplierPageResponse> list = pageResponse.getRecords();
-        this.getSupplierPageInfo(list);
+        supplierUtil.getSupplierPageInfo(list);
         return pageResponse;
     }
 
@@ -226,32 +219,5 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         businessHistoryPo.setOldBusinessStatus(basicInfoPo.getBusinessStatus());
         businessHistoryPo.setRemark(reason);
         businessHistoryRepository.save(businessHistoryPo);
-    }
-
-    private void getSupplierPageInfo(List<SupplierPageResponse> list) {
-        // 经营类型ID集
-        Set<Long> manageTypeIdSet = new HashSet<>();
-        for (SupplierPageResponse response : list) {
-            manageTypeIdSet.add(response.getManageTypeId());
-        }
-        // 经营类型<经营类型ID, 业务字典集>
-        Map<Long, DictInfoPo> dictMap = new HashMap<>();
-        if (CollectionUtil.isNotEmpty(manageTypeIdSet)) {
-            DictInfoRequest dictInfoRequest = new DictInfoRequest();
-            dictInfoRequest.setIdList(new ArrayList<>(manageTypeIdSet));
-            final List<DictInfoPo> dictInfoPoList = dictInfoRepository.getListByParams(dictInfoRequest);
-            if (CollectionUtil.isNotEmpty(dictInfoPoList)) {
-                dictMap = dictInfoPoList.stream().collect(Collectors.toMap(DictInfoPo::getId, e -> e, (k1, k2) -> k1));
-            }
-        }
-
-        // 组装数据
-        for (SupplierPageResponse response : list) {
-            final Long manageTypeId = response.getManageTypeId();
-            if (dictMap.containsKey(manageTypeId)) {
-                final DictInfoPo dictInfoPo = dictMap.get(manageTypeId);
-                response.setManageTypeName(dictInfoPo.getName());
-            }
-        }
     }
 }

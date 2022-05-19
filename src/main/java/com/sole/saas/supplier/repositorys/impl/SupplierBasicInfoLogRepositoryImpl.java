@@ -3,13 +3,18 @@ package com.sole.saas.supplier.repositorys.impl;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sole.saas.common.aops.BaseData;
 import com.sole.saas.common.constant.OperatorType;
 import com.sole.saas.supplier.mappers.SupplierBasicInfoLogMapper;
 import com.sole.saas.supplier.models.po.SupplierBasicInfoLogPo;
+import com.sole.saas.supplier.models.po.SupplierBasicInfoPo;
 import com.sole.saas.supplier.models.request.SupplierBasicInfoRequest;
+import com.sole.saas.supplier.models.request.SupplierPageRequest;
+import com.sole.saas.supplier.models.response.SupplierPageResponse;
 import com.sole.saas.supplier.repositorys.ISupplierBasicInfoLogRepository;
 import org.springframework.stereotype.Repository;
 
@@ -46,6 +51,11 @@ public class SupplierBasicInfoLogRepositoryImpl extends ServiceImpl<SupplierBasi
     public SupplierBasicInfoLogPo getByParams(SupplierBasicInfoRequest request) {
         final LambdaQueryWrapper<SupplierBasicInfoLogPo> queryWrapper = this.getQueryWrapper(request);
         return supplierBasicInfoLogMapper.selectOne(queryWrapper);
+    }
+
+    @Override
+    public IPage<SupplierPageResponse> getCustomerLogPage(Page<SupplierBasicInfoPo> page, SupplierPageRequest request) {
+        return supplierBasicInfoLogMapper.getCustomerLogPage(page, request);
     }
 
     /**

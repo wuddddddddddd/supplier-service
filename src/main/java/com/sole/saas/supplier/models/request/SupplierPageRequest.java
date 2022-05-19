@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author wjd
@@ -79,5 +80,8 @@ public class SupplierPageRequest extends BaseRequest implements Serializable {
 
     @ApiModelProperty(value = "所属采购员ID")
     private Long buyerUserId;
+
+    @ApiModelProperty(value = "业务状态集")
+    private List<Integer> businessStatusList;
 
 }

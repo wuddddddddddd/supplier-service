@@ -35,7 +35,6 @@ public class SupplierResponse implements Serializable {
     @ApiModelProperty(value = "所属采购员信息")
     private SupplierBuyerUserResponse supplierBuyerUserResponse;
 
-
     @ApiModelProperty(value = "主营行业")
     private List<SupplierIndustryResponse> industryResponseList = new ArrayList<>();
 }

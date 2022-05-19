@@ -1,6 +1,7 @@
 package com.sole.saas.supplier.cvts;
 
 import com.sole.saas.supplier.models.po.SupplierIndustryLogPo;
+import com.sole.saas.supplier.models.po.SupplierIndustryPo;
 import com.sole.saas.supplier.models.response.SupplierIndustryResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -17,6 +18,8 @@ import java.util.List;
 public interface SupplierIndustryCvt {
     SupplierIndustryCvt INSTANCE = Mappers.getMapper(SupplierIndustryCvt.class);
 
+
+    List<SupplierIndustryResponse> poToResponse(List<SupplierIndustryPo> list);
 
     List<SupplierIndustryResponse> logPoToResponse(List<SupplierIndustryLogPo> list);
 }

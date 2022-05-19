@@ -4,4 +4,43 @@
     <resultMap id="supplierBasicInfoRecordPo" type="com.sole.saas.supplier.models.po.SupplierBasicInfoLogPo">
         <id property="id" column="id" jdbcType="NUMERIC"/>
     </resultMap>
+
+
+
+    <resultMap id="supplierPageResponse" type="com.sole.saas.supplier.models.response.SupplierPageResponse">
+        <id property="id" column="id" jdbcType="NUMERIC"/>
+        <result property="supplierCode" column="supplier_code" />
+        <result property="supplierName" column="supplier_name" />
+        <result property="source" column="source" />
+        <result property="manageTypeId" column="manage_type_id" />
+        <result property="businessStatus" column="business_status" />
+        <result property="createTime" column="create_time" />
+        <result property="creditCode" column="credit_code" />
+        <result property="userAccount" column="user_account" />
+        <result property="userName" column="user_name" />
+        <result property="userTelephone" column="user_telephone" />
+        <result property="userEmail" column="user_email" />
+        <result property="registeredDate" column="registered_date" />
+        <result property="provinceId" column="province_id" />
+        <result property="cityId" column="city_id" />
+        <result property="districtId" column="district_id" />
+        <result property="buyerUserId" column="buyer_user_id" />
+    </resultMap>
+
+    <select id="getCustomerLogPage" parameterType="com.sole.saas.supplier.models.request.SupplierPageRequest" resultMap="supplierPageResponse">
+        SELECT
+            bi.id, bi.`code` as supplier_code, bi.`name` as supplier_name, bi.source, bi.manage_type_id, bi.business_status,bi.create_time,
+            qi.credit_code,
+            ui.account as user_account, ui.`name` as user_name, ui.telephone as user_telephone, ui.email as user_email,
+            ri.registered_date, ri.province_id, ri.city_id, ri.district_id,
+            bu.buyer_user_id
+        FROM
+            supplier_basic_info_log bi
+                LEFT JOIN supplier_qualification_info_log qi on bi.id = qi.supplier_id
+                LEFT JOIN supplier_user_info_log ui ON bi.id = ui.supplier_id
+                LEFT JOIN supplier_register_info_log ri ON bi.id = ri.supplier_id
+                LEFT JOIN supplier_buyer_user_log bu ON bi.id = bu.supplier_id
+        WHERE
+            bi.STATUS = 0
+    </select>
 </mapper>
