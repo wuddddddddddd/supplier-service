@@ -18,9 +18,11 @@ public interface QualificationInfoCvt {
     QualificationInfoCvt INSTANCE = Mappers.getMapper(QualificationInfoCvt.class);
 
 
-    QualificationInfoPo  requestToPo(QualificationInfoRequest request);
+    QualificationInfoPo requestToPo(QualificationInfoRequest request);
 
     QualificationInfoResponse poToResponse(QualificationInfoPo po);
 
     QualificationInfoLogPo poToLogPo(QualificationInfoPo po);
+
+    QualificationInfoLogPo requestToLog(QualificationInfoRequest request);
 }

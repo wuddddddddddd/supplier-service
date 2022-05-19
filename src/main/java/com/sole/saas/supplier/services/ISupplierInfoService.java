@@ -14,10 +14,6 @@ import com.sole.saas.supplier.models.response.SupplierResponse;
  */
 public interface ISupplierInfoService {
 
-    void initCreateSupplier(InitSupplierRequest request);
-
-    void addSupplier(SupplierRequest request, boolean isDraft);
-
     SupplierResponse getSupplierInfoById(Long supplierId);
 
     void delSupplier(Long supplierId);

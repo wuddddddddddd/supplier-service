@@ -1,5 +1,6 @@
 package com.sole.saas.supplier.repositorys.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sole.saas.common.aops.BaseData;
 import com.sole.saas.common.constant.OperatorType;
@@ -26,5 +27,11 @@ public class QualificationInfoLogRepositoryImpl extends ServiceImpl<Qualificatio
     @BaseData(fill = OperatorType.INSERT)
     public boolean save(QualificationInfoLogPo entity) {
         return super.save(entity);
+    }
+
+    @Override
+    public int updateByOneParams(SFunction<QualificationInfoLogPo, ?> updateColumn, Object updateValue,
+                                 SFunction<QualificationInfoLogPo, ?> conditionColumn, Object conditionValue) {
+        return 0;
     }
 }

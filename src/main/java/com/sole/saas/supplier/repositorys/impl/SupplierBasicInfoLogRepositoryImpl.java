@@ -1,5 +1,6 @@
 package com.sole.saas.supplier.repositorys.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sole.saas.common.aops.BaseData;
@@ -17,6 +18,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class SupplierBasicInfoLogRepositoryImpl extends ServiceImpl<SupplierBasicInfoLogMapper, SupplierBasicInfoLogPo> implements ISupplierBasicInfoLogRepository {
 
+    private final SupplierBasicInfoLogMapper supplierBasicInfoLogMapper;
+
+    public SupplierBasicInfoLogRepositoryImpl(SupplierBasicInfoLogMapper supplierBasicInfoLogMapper) {
+        this.supplierBasicInfoLogMapper = supplierBasicInfoLogMapper;
+    }
 
     @Override
     @BaseData(fill = OperatorType.INSERT)
@@ -25,7 +31,16 @@ public class SupplierBasicInfoLogRepositoryImpl extends ServiceImpl<SupplierBasi
     }
 
     @Override
-    public int updateByOneParams(SFunction<SupplierBasicInfoLogPo, ?> updateColumn, Object updateValue, SFunction<SupplierBasicInfoLogPo, ?> conditionColumn, Object conditionValue) {
+    public int updateByOneParams(SFunction<SupplierBasicInfoLogPo, ?> updateColumn, Object updateValue,
+                                 SFunction<SupplierBasicInfoLogPo, ?> conditionColumn, Object conditionValue) {
         return 0;
+    }
+
+    @Override
+    @BaseData(fill = OperatorType.INSERT_UPDATE)
+    public int updateBySupplierId(SupplierBasicInfoLogPo logPo) {
+        final LambdaQueryWrapper<SupplierBasicInfoLogPo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SupplierBasicInfoLogPo::getSupplierId, logPo.getSupplierId());
+        return supplierBasicInfoLogMapper.update(logPo, queryWrapper);
     }
 }

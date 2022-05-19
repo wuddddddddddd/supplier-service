@@ -14,4 +14,7 @@ public interface ISupplierBasicInfoLogRepository extends IService<SupplierBasicI
     int updateByOneParams(SFunction<SupplierBasicInfoLogPo, ?> updateColumn, Object updateValue,
                           SFunction<SupplierBasicInfoLogPo, ?> conditionColumn, Object conditionValue);
 
+
+    int updateBySupplierId(SupplierBasicInfoLogPo logPo);
+
 }

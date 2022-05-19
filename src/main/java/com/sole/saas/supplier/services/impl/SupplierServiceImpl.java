@@ -45,165 +45,23 @@ public class SupplierServiceImpl implements ISupplierInfoService {
 
     private final ISupplierDictRepository supplierDictRepository;
 
-    private final RedisUtils redisUtils;
-
     private final IDictInfoRepository dictInfoRepository;
 
     private final IBusinessHistoryRepository businessHistoryRepository;
-
-    private final ISupplierBasicInfoLogRepository supplierBasicInfoLogRepository;
-
-    private final IQualificationInfoLogRepository qualificationInfoLogRepository;
-
-    private final IRegisterInfoLogRepository registerInfoLogRepository;
-
-    private final ISupplierUserInfoLogRepository supplierUserInfoLogRepository;
-
-    private final ISupplierBuyerUserLogRepository supplierBuyerUserLogRepository;
 
 
     public SupplierServiceImpl(ISupplierBasicInfoRepository supplierBasicInfoRepository, IQualificationInfoRepository qualificationInfoRepository,
                                IRegisterInfoRepository registerInfoRepository, ISupplierUserInfoRepository supplierUserInfoRepository,
                                ISupplierBuyerUserRepository supplierBuyerUserRepository, ISupplierDictRepository supplierDictRepository,
-                               RedisUtils redisUtils, IDictInfoRepository dictInfoRepository,
-                               IBusinessHistoryRepository businessHistoryRepository, ISupplierBasicInfoLogRepository supplierBasicInfoLogRepository,
-                               IQualificationInfoLogRepository qualificationInfoLogRepository, IRegisterInfoLogRepository registerInfoLogRepository,
-                               ISupplierUserInfoLogRepository supplierUserInfoLogRepository, ISupplierBuyerUserLogRepository supplierBuyerUserLogRepository) {
+                               IDictInfoRepository dictInfoRepository, IBusinessHistoryRepository businessHistoryRepository) {
         this.supplierBasicInfoRepository = supplierBasicInfoRepository;
         this.qualificationInfoRepository = qualificationInfoRepository;
         this.registerInfoRepository = registerInfoRepository;
         this.supplierUserInfoRepository = supplierUserInfoRepository;
         this.supplierBuyerUserRepository = supplierBuyerUserRepository;
         this.supplierDictRepository = supplierDictRepository;
-        this.redisUtils = redisUtils;
         this.dictInfoRepository = dictInfoRepository;
         this.businessHistoryRepository = businessHistoryRepository;
-        this.supplierBasicInfoLogRepository = supplierBasicInfoLogRepository;
-        this.qualificationInfoLogRepository = qualificationInfoLogRepository;
-        this.registerInfoLogRepository = registerInfoLogRepository;
-        this.supplierUserInfoLogRepository = supplierUserInfoLogRepository;
-        this.supplierBuyerUserLogRepository = supplierBuyerUserLogRepository;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void initCreateSupplier(InitSupplierRequest request) {
-        logger.info("[初始化创建简要供应商]---供应商名称为{}", request.getSupplierName());
-        // 添加供应商信息并标识为创建中状态
-        SupplierBasicInfoPo basicInfoPo = new SupplierBasicInfoPo();
-        basicInfoPo.setName(request.getSupplierName());
-        basicInfoPo.setBusinessStatus(BusinessStatusEnum.CREATE_ING.getCode());
-        supplierBasicInfoRepository.save(basicInfoPo);
-        final Long supplierId = basicInfoPo.getId();
-        // 保存日志信息
-        final SupplierBasicInfoLogPo supplierBasicInfoLogPo = SupplierBasicInfoCvt.INSTANCE.poToLogPo(basicInfoPo);
-        supplierBasicInfoLogPo.setSupplierId(supplierId);
-        supplierBasicInfoLogRepository.save(supplierBasicInfoLogPo);
-
-
-        // 添加资质信息中的统一社会信用代码
-        QualificationInfoPo qualificationInfoPo = new QualificationInfoPo();
-        qualificationInfoPo.setSupplierId(supplierId);
-        qualificationInfoPo.setCreditCode(request.getCreditCode());
-        qualificationInfoRepository.save(qualificationInfoPo);
-        // 保存日志信息
-        final QualificationInfoLogPo qualificationInfoLogPo = QualificationInfoCvt.INSTANCE.poToLogPo(qualificationInfoPo);
-        qualificationInfoLogRepository.save(qualificationInfoLogPo);
-
-        // 创建一条空的公司注册信息
-        RegisterInfoPo registerInfoPo = new RegisterInfoPo();
-        registerInfoPo.setSupplierId(supplierId);
-        registerInfoRepository.save(registerInfoPo);
-        // 保存日志信息
-        final RegisterInfoLogPo registerInfoLogPo = RegisterInfoCvt.INSTANCE.poToLogPo(registerInfoPo);
-        registerInfoLogRepository.save(registerInfoLogPo);
-
-        // 添加供应商联系人
-        SupplierUserInfoPo supplierUserInfoPo = new SupplierUserInfoPo();
-        supplierUserInfoPo.setSupplierId(supplierId);
-        supplierUserInfoPo.setName(request.getUserName());
-        supplierUserInfoPo.setTelephone(request.getUserTelephone());
-        supplierUserInfoPo.setEmail(request.getUserEmail());
-        // 账号: 8位数字 + 字母
-        final String number = RandomUtil.randomNumbers(8);
-        final String charNumber = RandomUtil.randomString(3);
-        final String random = number + charNumber;
-        supplierUserInfoPo.setAccount(random);
-        supplierUserInfoPo.setPassword(random);
-        supplierUserInfoRepository.save(supplierUserInfoPo);
-        // 保存日志信息
-        final SupplierUserInfoLogPo supplierUserInfoLogPo = SupplierUserInfoCvt.INSTANCE.poToLogPo(supplierUserInfoPo);
-        supplierUserInfoLogRepository.save(supplierUserInfoLogPo);
-
-
-        // 添加采购员信息
-        SupplierBuyerUserPo supplierBuyerUserPo = new SupplierBuyerUserPo();
-        supplierBuyerUserPo.setSupplierId(supplierId);
-        supplierBuyerUserPo.setBuyerUserId(request.getBuyerUserId());
-        supplierBuyerUserRepository.save(supplierBuyerUserPo);
-        // 保存日志信息
-        final SupplierBuyerUserLogPo supplierBuyerUserLogPo = SupplierBuyerUserCvt.INSTANCE.poToLogPo(supplierBuyerUserPo);
-        supplierBuyerUserLogRepository.save(supplierBuyerUserLogPo);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void addSupplier(SupplierRequest request, boolean isDraft) {
-        logger.info("[完善供应商信息]---供应商ID为{}", request.getBasicInfoRequest().getId());
-
-        // 供应商基础信息
-        final SupplierBasicInfoRequest basicInfoRequest = request.getBasicInfoRequest();
-        final SupplierBasicInfoPo basicInfoPo = SupplierBasicInfoCvt.INSTANCE.requestToPo(basicInfoRequest);
-        basicInfoPo.setSelfSupportType(SelfSupportEnum.OTHER.getCode());
-        basicInfoPo.setBusinessStatus(isDraft ? BusinessStatusEnum.DRAFT.getCode() : BusinessStatusEnum.IN_PROCESS.getCode());
-        if (!isDraft && StrUtil.isBlank(basicInfoRequest.getCode())) {
-            // 供应商编码: GYS+创建年月日+6位随机数字
-            final long code = redisUtils.incr("SUPPLIER_CODE", 1);
-            String format = String.format("%06d", code);
-            String supplierCode = SupplierConstant.SUPPLIER_CODE_KEY + DateUtil.today() + format;
-            basicInfoPo.setCode(supplierCode);
-        }
-        supplierBasicInfoRepository.updateById(basicInfoPo);
-
-        // 主营行业信息
-        final Long supplierId = basicInfoPo.getId();
-        // 逻辑删除历史数据
-        SupplierDictRequest supplierDictRequest = new SupplierDictRequest();
-        supplierDictRequest.setSupplierId(supplierId);
-        supplierDictRequest.setCode(SupplierDictCodeEnum.INDUSTRY.getCode());
-        supplierDictRequest.setStatus(Constant.STATUS_NOT_DEL);
-        supplierDictRepository.updateOneByParams(SupplierDictPo::getStatus, Constant.STATUS_DEL, supplierDictRequest);
-        // 新增
-        final List<Long> industryList = request.getIndustryList();
-        List<SupplierDictPo> supplierDictPoList = new ArrayList<>();
-        for (Long industryId : industryList) {
-            SupplierDictPo supplierDictPo = new SupplierDictPo();
-            supplierDictPo.setCode(SupplierDictCodeEnum.INDUSTRY.getCode());
-            supplierDictPo.setSupplierId(supplierId);
-            supplierDictPo.setDictId(industryId);
-            supplierDictPoList.add(supplierDictPo);
-        }
-        supplierDictRepository.saveBatch(supplierDictPoList);
-
-        // 资质信息
-        final QualificationInfoRequest qualificationInfoRequest = request.getQualificationInfoRequest();
-        final QualificationInfoPo qualificationInfoPo = QualificationInfoCvt.INSTANCE.requestToPo(qualificationInfoRequest);
-        qualificationInfoRepository.updateById(qualificationInfoPo);
-
-        // 供应商联系人信息
-        final SupplierUserInfoRequest userInfoRequest = request.getSupplierUserInfoRequest();
-        final SupplierUserInfoPo supplierUserInfoPo = SupplierUserInfoCvt.INSTANCE.requestToPo(userInfoRequest);
-        supplierUserInfoRepository.updateById(supplierUserInfoPo);
-
-        // 公司注册信息
-        final RegisterInfoRequest registerInfoRequest = request.getRegisterInfoRequest();
-        final RegisterInfoPo registerInfoPo = RegisterInfoCvt.INSTANCE.requestToPo(registerInfoRequest);
-        registerInfoRepository.save(registerInfoPo);
-
-        // 采购员信息
-        final SupplierBuyerUserRequest buyerUserRequest = request.getSupplierBuyerUserRequest();
-        final SupplierBuyerUserPo buyerUserPo = SupplierBuyerUserCvt.INSTANCE.requestToPo(buyerUserRequest);
-        supplierBuyerUserRepository.updateById(buyerUserPo);
     }
 
     @Override

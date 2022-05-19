@@ -18,6 +18,8 @@ import java.util.List;
 public class SupplierRequest implements Serializable {
     private static final long serialVersionUID = 3055831052010680307L;
 
+    @ApiModelProperty(value = "供应商ID")
+    private Long supplierId;
 
     @ApiModelProperty(value = "供应商基础信息")
     private SupplierBasicInfoRequest basicInfoRequest;
