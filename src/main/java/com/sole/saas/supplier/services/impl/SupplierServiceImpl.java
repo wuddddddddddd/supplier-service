@@ -51,12 +51,14 @@ public class SupplierServiceImpl implements ISupplierInfoService {
 
     private final IBusinessHistoryRepository businessHistoryRepository;
 
+    private final ISupplierBasicInfoLogRepository supplierBasicInfoLogRepository;
+
 
     public SupplierServiceImpl(ISupplierBasicInfoRepository supplierBasicInfoRepository, IQualificationInfoRepository qualificationInfoRepository,
                                IRegisterInfoRepository registerInfoRepository, ISupplierUserInfoRepository supplierUserInfoRepository,
                                ISupplierBuyerUserRepository supplierBuyerUserRepository, ISupplierDictRepository supplierDictRepository,
                                RedisUtils redisUtils, IDictInfoRepository dictInfoRepository,
-                               IBusinessHistoryRepository businessHistoryRepository) {
+                               IBusinessHistoryRepository businessHistoryRepository, ISupplierBasicInfoLogRepository supplierBasicInfoLogRepository) {
         this.supplierBasicInfoRepository = supplierBasicInfoRepository;
         this.qualificationInfoRepository = qualificationInfoRepository;
         this.registerInfoRepository = registerInfoRepository;
@@ -66,6 +68,7 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         this.redisUtils = redisUtils;
         this.dictInfoRepository = dictInfoRepository;
         this.businessHistoryRepository = businessHistoryRepository;
+        this.supplierBasicInfoLogRepository = supplierBasicInfoLogRepository;
     }
 
     @Override
@@ -77,6 +80,7 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         basicInfoPo.setName(request.getSupplierName());
         basicInfoPo.setBusinessStatus(BusinessStatusEnum.CREATE_ING.getCode());
         supplierBasicInfoRepository.save(basicInfoPo);
+
 
         final Long supplierId = basicInfoPo.getId();
 

@@ -9,7 +9,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @EnableDiscoveryClient
 @SpringBootApplication(scanBasePackages = "com.sole.saas.**")
-@MapperScan(value = {"com.sole.saas.organization.mappers"})
+@MapperScan(value = {"com.sole.saas.supplier.mappers"})
 @EnableFeignClients("com.sole.saas.**.apis")
 public class SupplierApplication {
     public static void main(String[] args) {

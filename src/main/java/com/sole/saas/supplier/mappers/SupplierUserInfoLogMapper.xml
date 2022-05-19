@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sole.saas.supplier.mappers.SupplierUserInfoLogMapper">
+    <resultMap id="supplierUserInfoRecordPo" type="com.sole.saas.supplier.models.po.SupplierUserInfoLogPo">
+        <id property="id" column="id" jdbcType="NUMERIC"/>
+    </resultMap>
+
+    <sql id="tableName">
+        supplier_user_info_record uir
+    </sql>
+
+    <sql id="columns">
+        uir.id
+    </sql>
+
+
+
+</mapper>

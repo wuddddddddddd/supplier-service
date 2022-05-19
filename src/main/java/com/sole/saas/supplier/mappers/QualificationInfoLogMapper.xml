@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sole.saas.supplier.mappers.QualificationInfoLogMapper">
+    <resultMap id="qualificationInfoRecordPo" type="com.sole.saas.supplier.models.po.QualificationInfoLogPo">
+        <id property="id" column="id" jdbcType="NUMERIC"/>
+    </resultMap>
+
+    <sql id="tableName">
+        supplier_qualification_info_record qir
+    </sql>
+
+    <sql id="columns">
+        qir.id
+    </sql>
+
+
+
+</mapper>

@@ -9,4 +9,5 @@ import com.sole.saas.supplier.models.po.BusinessHistoryPo;
  * @date 2022-05-18
  */
 public interface BusinessHistoryMapper extends BaseMapper<BusinessHistoryPo> {
+
 }
