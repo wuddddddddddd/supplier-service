@@ -123,14 +123,6 @@ public class SupplierServiceImpl implements ISupplierInfoService {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void delSupplier(Long supplierId) {
-        logger.info("[删除供应商]---供应商ID为{}", supplierId);
-        supplierBasicInfoRepository.updateByOneParams(SupplierBasicInfoPo::getStatus, Constant.STATUS_DEL,
-                SupplierBasicInfoPo::getId, supplierId);
-    }
-
-    @Override
     public IPage<SupplierPageResponse> getSupplierPageByParams(SupplierPageRequest request) {
         logger.info("[查询供应商分页信息]");
         Page<SupplierBasicInfoPo> page = new Page<>(request.getPageIndex(), request.getPageSize());

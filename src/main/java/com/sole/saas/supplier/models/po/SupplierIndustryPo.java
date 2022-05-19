@@ -1,38 +1,41 @@
-package com.sole.saas.supplier.models.request;
+package com.sole.saas.supplier.models.po;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
  * @author wjd
- * @description 供应商业务字典关联关系请求实体.
- * @date 2022-05-17
+ * @description 供应商主营行业关联关系数据库映射实体.
+ * @date 2022-05-19
  */
-@ApiModel(value="供应商业务字典关联关系请求实体")
+@ApiModel(value="供应商主营行业关联关系数据库映射实体")
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class SupplierDictRequest  implements Serializable {
-
-    private static final long serialVersionUID = 7866392571649440191L;
-
+@TableName("supplier_supplier_industry")
+public class SupplierIndustryPo extends Model<SupplierIndustryPo> {
+    private static final long serialVersionUID = -6675887745041290035L;
 
     @ApiModelProperty(value = "主键ID")
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
-
-    @ApiModelProperty(value = "编码(作用域)")
-    private String code;
 
     @ApiModelProperty(value = "供应商ID")
     private Long supplierId;
 
-    @ApiModelProperty(value = "业务字典ID")
-    private Long dictId;
+    @ApiModelProperty(value = "主营行业ID")
+    private Long industryId;
+
+    @ApiModelProperty(value = "主营行业名称")
+    private String industryName;
 
     @ApiModelProperty(value = "创建人")
     private Long createUserId;

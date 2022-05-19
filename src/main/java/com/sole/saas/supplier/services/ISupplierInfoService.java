@@ -16,8 +16,6 @@ public interface ISupplierInfoService {
 
     SupplierResponse getSupplierInfoById(Long supplierId);
 
-    void delSupplier(Long supplierId);
-
     IPage<SupplierPageResponse> getSupplierPageByParams(SupplierPageRequest request);
 
     void remarkSelfSupport(Long supplierId);

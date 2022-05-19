@@ -25,4 +25,6 @@ public interface RegisterInfoCvt {
     RegisterInfoLogPo poToLogPo(RegisterInfoPo po);
 
     RegisterInfoLogPo requestToLogPo(RegisterInfoRequest request);
+
+
 }

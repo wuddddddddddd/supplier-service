@@ -3,12 +3,15 @@ package com.sole.saas.supplier.services.impl;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.sole.saas.common.constant.Constant;
+import com.sole.saas.common.utils.ExceptionUtils;
 import com.sole.saas.common.utils.RedisUtils;
 import com.sole.saas.supplier.constant.BusinessStatusEnum;
 import com.sole.saas.supplier.constant.SupplierConstant;
 import com.sole.saas.supplier.cvts.*;
 import com.sole.saas.supplier.models.po.*;
 import com.sole.saas.supplier.models.request.*;
+import com.sole.saas.supplier.models.response.SupplierBasicInfoResponse;
+import com.sole.saas.supplier.models.response.SupplierResponse;
 import com.sole.saas.supplier.repositorys.*;
 import com.sole.saas.supplier.services.ISupplierLogService;
 import org.slf4j.Logger;
@@ -147,6 +150,9 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         }
         supplierBasicInfoLogRepository.save(basicInfoLogPo);
 
+        // 主营行业信息更新
+
+
         // 供应商资质信息更新
         qualificationInfoLogRepository.updateByOneParams(QualificationInfoLogPo::getStatus, Constant.STATUS_DEL,
                 QualificationInfoLogPo::getSupplierId, supplierId);
@@ -180,5 +186,33 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         final SupplierBuyerUserRequest supplierBuyerUserRequest = request.getSupplierBuyerUserRequest();
         final SupplierBuyerUserLogPo supplierBuyerUserLogPo = SupplierBuyerUserCvt.INSTANCE.requestToLogPo(supplierBuyerUserRequest);
         supplierBuyerUserLogRepository.save(supplierBuyerUserLogPo);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void delSupplier(Long supplierId) {
+        logger.info("[删除供应商]---供应商ID为{}", supplierId);
+        supplierBasicInfoRepository.updateByOneParams(SupplierBasicInfoPo::getStatus, Constant.STATUS_DEL,
+                SupplierBasicInfoPo::getId, supplierId);
+    }
+
+    public SupplierResponse getSupplierLogBySupplierId(Long supplierId) {
+        logger.info("[获取供应商记录信息]---供应商ID为{}", supplierId);
+        SupplierResponse response = new SupplierResponse();
+
+        // 基础信息
+        SupplierBasicInfoRequest supplierBasicInfoRequest = new SupplierBasicInfoRequest();
+        supplierBasicInfoRequest.setSupplierId(supplierId);
+        supplierBasicInfoRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final SupplierBasicInfoLogPo basicInfoLogPo = supplierBasicInfoLogRepository.getByParams(supplierBasicInfoRequest);
+        ExceptionUtils.error(null == basicInfoLogPo)
+                .errorMessage(null, "根据供应商ID{}未获取到记录信息", supplierId);
+        final SupplierBasicInfoResponse supplierBasicInfoResponse = SupplierBasicInfoCvt.INSTANCE.logPoToResponse(basicInfoLogPo);
+        response.setBasicInfoResponse(supplierBasicInfoResponse);
+
+        // 资质信息
+
+
+        return response;
     }
 }

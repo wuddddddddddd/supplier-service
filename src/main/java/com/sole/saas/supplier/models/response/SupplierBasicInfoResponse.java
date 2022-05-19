@@ -23,6 +23,9 @@ public class SupplierBasicInfoResponse implements Serializable {
     @ApiModelProperty(value = "主键ID")
     private Long id;
 
+    @ApiModelProperty(value = "记录表对应的供应商主键ID")
+    private Long supplierId;
+
     @ApiModelProperty(value = "来源")
     private Integer source;
 

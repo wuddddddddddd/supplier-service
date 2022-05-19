@@ -1,12 +1,15 @@
 package com.sole.saas.supplier.repositorys.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sole.saas.common.aops.BaseData;
 import com.sole.saas.common.constant.OperatorType;
 import com.sole.saas.supplier.mappers.SupplierBasicInfoLogMapper;
 import com.sole.saas.supplier.models.po.SupplierBasicInfoLogPo;
+import com.sole.saas.supplier.models.request.SupplierBasicInfoRequest;
 import com.sole.saas.supplier.repositorys.ISupplierBasicInfoLogRepository;
 import org.springframework.stereotype.Repository;
 
@@ -33,14 +36,41 @@ public class SupplierBasicInfoLogRepositoryImpl extends ServiceImpl<SupplierBasi
     @Override
     public int updateByOneParams(SFunction<SupplierBasicInfoLogPo, ?> updateColumn, Object updateValue,
                                  SFunction<SupplierBasicInfoLogPo, ?> conditionColumn, Object conditionValue) {
-        return 0;
+        final LambdaUpdateWrapper<SupplierBasicInfoLogPo> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(updateColumn, updateValue);
+        updateWrapper.eq(conditionColumn, conditionValue);
+        return supplierBasicInfoLogMapper.update(null, updateWrapper);
     }
 
     @Override
-    @BaseData(fill = OperatorType.INSERT_UPDATE)
-    public int updateBySupplierId(SupplierBasicInfoLogPo logPo) {
-        final LambdaQueryWrapper<SupplierBasicInfoLogPo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(SupplierBasicInfoLogPo::getSupplierId, logPo.getSupplierId());
-        return supplierBasicInfoLogMapper.update(logPo, queryWrapper);
+    public SupplierBasicInfoLogPo getByParams(SupplierBasicInfoRequest request) {
+        final LambdaQueryWrapper<SupplierBasicInfoLogPo> queryWrapper = this.getQueryWrapper(request);
+        return supplierBasicInfoLogMapper.selectOne(queryWrapper);
     }
+
+    /**
+     * @description 通用非空查询条件.
+     * @author wjd
+     * @date 2022/5/16
+     * @param request 条件
+     * @return 查询条件组装结果
+     */
+    private LambdaQueryWrapper<SupplierBasicInfoLogPo> getQueryWrapper(SupplierBasicInfoRequest request) {
+        LambdaQueryWrapper<SupplierBasicInfoLogPo> queryWrapper = new LambdaQueryWrapper<>();
+        if (null != request.getId()) {
+            queryWrapper.eq(SupplierBasicInfoLogPo::getId, request.getId());
+        }
+        if (StrUtil.isNotBlank(request.getName())) {
+            queryWrapper.eq(SupplierBasicInfoLogPo::getName, request.getName());
+        }
+        if (null != request.getSupplierId()) {
+            queryWrapper.eq(SupplierBasicInfoLogPo::getSupplierId, request.getSupplierId());
+        }
+        if (null != request.getStatus()) {
+            queryWrapper.eq(SupplierBasicInfoLogPo::getStatus ,request.getStatus());
+        }
+        return queryWrapper;
+    }
+
+
 }

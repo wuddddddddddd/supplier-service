@@ -38,6 +38,9 @@ public class SupplierDictLogPo extends Model<SupplierDictLogPo> {
     @ApiModelProperty(value = "业务字典ID")
     private Long dictId;
 
+    @ApiModelProperty(value = "创建人")
+    private Long createUserId;
+
     @ApiModelProperty(value = "创建时间")
     @JSONField(format="yyyy-MM-dd HH:mm:ss")
     private Date createTime;

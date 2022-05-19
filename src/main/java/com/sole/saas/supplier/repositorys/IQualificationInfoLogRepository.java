@@ -3,6 +3,7 @@ package com.sole.saas.supplier.repositorys;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sole.saas.supplier.models.po.QualificationInfoLogPo;
+import com.sole.saas.supplier.models.request.QualificationInfoRequest;
 
 /**
  * @author wjd
@@ -14,4 +15,6 @@ public interface IQualificationInfoLogRepository extends IService<QualificationI
 
     int updateByOneParams(SFunction<QualificationInfoLogPo, ?> updateColumn, Object updateValue,
                           SFunction<QualificationInfoLogPo, ?> conditionColumn, Object conditionValue);
+
+    QualificationInfoLogPo getByParams(QualificationInfoRequest request);
 }

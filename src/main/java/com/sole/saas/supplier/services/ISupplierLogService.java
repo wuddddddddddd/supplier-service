@@ -13,4 +13,6 @@ public interface ISupplierLogService {
     void initCreateSupplier(InitSupplierRequest request);
 
     void addSupplier(SupplierRequest request, boolean isDraft);
+
+    void delSupplier(Long supplierId);
 }

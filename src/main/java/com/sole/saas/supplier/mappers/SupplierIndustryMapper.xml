@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sole.saas.supplier.mappers.SupplierIndustryMapper">
+    <resultMap id="supplierIndustryPo" type="com.sole.saas.supplier.models.po.SupplierIndustryPo">
+        <id property="id" column="id" jdbcType="NUMERIC"/>
+    </resultMap>
+
+    <sql id="tableName">
+        supplier_supplier_industry si
+    </sql>
+
+    <sql id="columns">
+        si.id
+    </sql>
+
+
+
+</mapper>
