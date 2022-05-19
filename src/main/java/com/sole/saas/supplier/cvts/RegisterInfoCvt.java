@@ -1,5 +1,6 @@
 package com.sole.saas.supplier.cvts;
 
+import com.sole.saas.supplier.models.po.RegisterInfoLogPo;
 import com.sole.saas.supplier.models.po.RegisterInfoPo;
 import com.sole.saas.supplier.models.request.RegisterInfoRequest;
 import com.sole.saas.supplier.models.response.RegisterInfoResponse;
@@ -20,4 +21,6 @@ public interface RegisterInfoCvt {
     RegisterInfoPo requestToPo(RegisterInfoRequest request);
 
     RegisterInfoResponse poToResponse(RegisterInfoPo po);
+
+    RegisterInfoLogPo poToLogPo(RegisterInfoPo po);
 }

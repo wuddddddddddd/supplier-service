@@ -53,12 +53,22 @@ public class SupplierServiceImpl implements ISupplierInfoService {
 
     private final ISupplierBasicInfoLogRepository supplierBasicInfoLogRepository;
 
+    private final IQualificationInfoLogRepository qualificationInfoLogRepository;
+
+    private final IRegisterInfoLogRepository registerInfoLogRepository;
+
+    private final ISupplierUserInfoLogRepository supplierUserInfoLogRepository;
+
+    private final ISupplierBuyerUserLogRepository supplierBuyerUserLogRepository;
+
 
     public SupplierServiceImpl(ISupplierBasicInfoRepository supplierBasicInfoRepository, IQualificationInfoRepository qualificationInfoRepository,
                                IRegisterInfoRepository registerInfoRepository, ISupplierUserInfoRepository supplierUserInfoRepository,
                                ISupplierBuyerUserRepository supplierBuyerUserRepository, ISupplierDictRepository supplierDictRepository,
                                RedisUtils redisUtils, IDictInfoRepository dictInfoRepository,
-                               IBusinessHistoryRepository businessHistoryRepository, ISupplierBasicInfoLogRepository supplierBasicInfoLogRepository) {
+                               IBusinessHistoryRepository businessHistoryRepository, ISupplierBasicInfoLogRepository supplierBasicInfoLogRepository,
+                               IQualificationInfoLogRepository qualificationInfoLogRepository, IRegisterInfoLogRepository registerInfoLogRepository,
+                               ISupplierUserInfoLogRepository supplierUserInfoLogRepository, ISupplierBuyerUserLogRepository supplierBuyerUserLogRepository) {
         this.supplierBasicInfoRepository = supplierBasicInfoRepository;
         this.qualificationInfoRepository = qualificationInfoRepository;
         this.registerInfoRepository = registerInfoRepository;
@@ -69,6 +79,10 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         this.dictInfoRepository = dictInfoRepository;
         this.businessHistoryRepository = businessHistoryRepository;
         this.supplierBasicInfoLogRepository = supplierBasicInfoLogRepository;
+        this.qualificationInfoLogRepository = qualificationInfoLogRepository;
+        this.registerInfoLogRepository = registerInfoLogRepository;
+        this.supplierUserInfoLogRepository = supplierUserInfoLogRepository;
+        this.supplierBuyerUserLogRepository = supplierBuyerUserLogRepository;
     }
 
     @Override
@@ -80,20 +94,29 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         basicInfoPo.setName(request.getSupplierName());
         basicInfoPo.setBusinessStatus(BusinessStatusEnum.CREATE_ING.getCode());
         supplierBasicInfoRepository.save(basicInfoPo);
-
-
         final Long supplierId = basicInfoPo.getId();
+        // 保存日志信息
+        final SupplierBasicInfoLogPo supplierBasicInfoLogPo = SupplierBasicInfoCvt.INSTANCE.poToLogPo(basicInfoPo);
+        supplierBasicInfoLogPo.setSupplierId(supplierId);
+        supplierBasicInfoLogRepository.save(supplierBasicInfoLogPo);
+
 
         // 添加资质信息中的统一社会信用代码
         QualificationInfoPo qualificationInfoPo = new QualificationInfoPo();
         qualificationInfoPo.setSupplierId(supplierId);
         qualificationInfoPo.setCreditCode(request.getCreditCode());
         qualificationInfoRepository.save(qualificationInfoPo);
+        // 保存日志信息
+        final QualificationInfoLogPo qualificationInfoLogPo = QualificationInfoCvt.INSTANCE.poToLogPo(qualificationInfoPo);
+        qualificationInfoLogRepository.save(qualificationInfoLogPo);
 
         // 创建一条空的公司注册信息
         RegisterInfoPo registerInfoPo = new RegisterInfoPo();
         registerInfoPo.setSupplierId(supplierId);
-        qualificationInfoRepository.save(qualificationInfoPo);
+        registerInfoRepository.save(registerInfoPo);
+        // 保存日志信息
+        final RegisterInfoLogPo registerInfoLogPo = RegisterInfoCvt.INSTANCE.poToLogPo(registerInfoPo);
+        registerInfoLogRepository.save(registerInfoLogPo);
 
         // 添加供应商联系人
         SupplierUserInfoPo supplierUserInfoPo = new SupplierUserInfoPo();
@@ -108,12 +131,19 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         supplierUserInfoPo.setAccount(random);
         supplierUserInfoPo.setPassword(random);
         supplierUserInfoRepository.save(supplierUserInfoPo);
+        // 保存日志信息
+        final SupplierUserInfoLogPo supplierUserInfoLogPo = SupplierUserInfoCvt.INSTANCE.poToLogPo(supplierUserInfoPo);
+        supplierUserInfoLogRepository.save(supplierUserInfoLogPo);
+
 
         // 添加采购员信息
         SupplierBuyerUserPo supplierBuyerUserPo = new SupplierBuyerUserPo();
         supplierBuyerUserPo.setSupplierId(supplierId);
         supplierBuyerUserPo.setBuyerUserId(request.getBuyerUserId());
         supplierBuyerUserRepository.save(supplierBuyerUserPo);
+        // 保存日志信息
+        final SupplierBuyerUserLogPo supplierBuyerUserLogPo = SupplierBuyerUserCvt.INSTANCE.poToLogPo(supplierBuyerUserPo);
+        supplierBuyerUserLogRepository.save(supplierBuyerUserLogPo);
     }
 
     @Override

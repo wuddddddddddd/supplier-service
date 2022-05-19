@@ -1,5 +1,6 @@
 package com.sole.saas.supplier.cvts;
 
+import com.sole.saas.supplier.models.po.SupplierBasicInfoLogPo;
 import com.sole.saas.supplier.models.po.SupplierBasicInfoPo;
 import com.sole.saas.supplier.models.request.SupplierBasicInfoRequest;
 import com.sole.saas.supplier.models.response.SupplierBasicInfoResponse;
@@ -20,5 +21,7 @@ public interface SupplierBasicInfoCvt {
 
     SupplierBasicInfoResponse poToResponse(SupplierBasicInfoPo po);
 
+
+    SupplierBasicInfoLogPo poToLogPo(SupplierBasicInfoPo po);
 
 }

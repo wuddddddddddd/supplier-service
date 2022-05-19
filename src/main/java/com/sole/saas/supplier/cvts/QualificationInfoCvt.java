@@ -1,5 +1,6 @@
 package com.sole.saas.supplier.cvts;
 
+import com.sole.saas.supplier.models.po.QualificationInfoLogPo;
 import com.sole.saas.supplier.models.po.QualificationInfoPo;
 import com.sole.saas.supplier.models.request.QualificationInfoRequest;
 import com.sole.saas.supplier.models.response.QualificationInfoResponse;
@@ -20,4 +21,6 @@ public interface QualificationInfoCvt {
     QualificationInfoPo  requestToPo(QualificationInfoRequest request);
 
     QualificationInfoResponse poToResponse(QualificationInfoPo po);
+
+    QualificationInfoLogPo poToLogPo(QualificationInfoPo po);
 }

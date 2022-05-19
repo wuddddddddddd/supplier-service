@@ -1,5 +1,6 @@
 package com.sole.saas.supplier.cvts;
 
+import com.sole.saas.supplier.models.po.SupplierBuyerUserLogPo;
 import com.sole.saas.supplier.models.po.SupplierBuyerUserPo;
 import com.sole.saas.supplier.models.request.SupplierBuyerUserRequest;
 import com.sole.saas.supplier.models.response.SupplierBuyerUserResponse;
@@ -19,4 +20,6 @@ public interface SupplierBuyerUserCvt {
     SupplierBuyerUserPo requestToPo(SupplierBuyerUserRequest request);
 
     SupplierBuyerUserResponse poToResponse(SupplierBuyerUserPo po);
+
+    SupplierBuyerUserLogPo poToLogPo(SupplierBuyerUserPo po);
 }
