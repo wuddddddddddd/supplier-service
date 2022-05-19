@@ -3,6 +3,7 @@ package com.sole.saas.supplier.repositorys;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sole.saas.supplier.models.po.SupplierBuyerUserLogPo;
+import com.sole.saas.supplier.models.request.SupplierBuyerUserRequest;
 
 /**
  * @author wjd
@@ -13,4 +14,6 @@ public interface ISupplierBuyerUserLogRepository extends IService<SupplierBuyerU
 
     int updateByOneParams(SFunction<SupplierBuyerUserLogPo, ?> updateColumn, Object updateValue,
                           SFunction<SupplierBuyerUserLogPo, ?> conditionColumn, Object conditionValue);
+
+    SupplierBuyerUserLogPo getByParams(SupplierBuyerUserRequest request);
 }

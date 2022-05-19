@@ -1,8 +1,12 @@
 package com.sole.saas.supplier.cvts;
 
+import com.sole.saas.supplier.models.po.SupplierIndustryLogPo;
+import com.sole.saas.supplier.models.response.SupplierIndustryResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
+
+import java.util.List;
 
 /**
  * @author wjd
@@ -12,4 +16,7 @@ import org.mapstruct.factory.Mappers;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface SupplierIndustryCvt {
     SupplierIndustryCvt INSTANCE = Mappers.getMapper(SupplierIndustryCvt.class);
+
+
+    List<SupplierIndustryResponse> logPoToResponse(List<SupplierIndustryLogPo> list);
 }

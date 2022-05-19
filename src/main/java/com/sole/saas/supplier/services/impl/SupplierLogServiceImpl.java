@@ -1,5 +1,6 @@
 package com.sole.saas.supplier.services.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.sole.saas.common.constant.Constant;
@@ -10,14 +11,16 @@ import com.sole.saas.supplier.constant.SupplierConstant;
 import com.sole.saas.supplier.cvts.*;
 import com.sole.saas.supplier.models.po.*;
 import com.sole.saas.supplier.models.request.*;
-import com.sole.saas.supplier.models.response.SupplierBasicInfoResponse;
-import com.sole.saas.supplier.models.response.SupplierResponse;
+import com.sole.saas.supplier.models.response.*;
 import com.sole.saas.supplier.repositorys.*;
 import com.sole.saas.supplier.services.ISupplierLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author wjd
@@ -32,6 +35,8 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
 
     private final IQualificationInfoRepository qualificationInfoRepository;
 
+    private final ISupplierIndustryRepository supplierIndustryRepository;
+
     private final IRegisterInfoRepository registerInfoRepository;
 
     private final ISupplierUserInfoRepository supplierUserInfoRepository;
@@ -42,6 +47,8 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
 
     private final IQualificationInfoLogRepository qualificationInfoLogRepository;
 
+    private final ISupplierIndustryLogRepository supplierIndustryLogRepository;
+
     private final IRegisterInfoLogRepository registerInfoLogRepository;
 
     private final ISupplierUserInfoLogRepository supplierUserInfoLogRepository;
@@ -51,18 +58,21 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
     private final RedisUtils redisUtils;
 
     public SupplierLogServiceImpl(ISupplierBasicInfoRepository supplierBasicInfoRepository, IQualificationInfoRepository qualificationInfoRepository,
-                                  IRegisterInfoRepository registerInfoRepository, ISupplierUserInfoRepository supplierUserInfoRepository,
-                                  ISupplierBuyerUserRepository supplierBuyerUserRepository, ISupplierBasicInfoLogRepository supplierBasicInfoLogRepository,
-                                  IQualificationInfoLogRepository qualificationInfoLogRepository, IRegisterInfoLogRepository registerInfoLogRepository,
+                                  ISupplierIndustryRepository supplierIndustryRepository, IRegisterInfoRepository registerInfoRepository,
+                                  ISupplierUserInfoRepository supplierUserInfoRepository, ISupplierBuyerUserRepository supplierBuyerUserRepository,
+                                  ISupplierBasicInfoLogRepository supplierBasicInfoLogRepository, IQualificationInfoLogRepository qualificationInfoLogRepository,
+                                  ISupplierIndustryLogRepository supplierIndustryLogRepository, IRegisterInfoLogRepository registerInfoLogRepository,
                                   ISupplierUserInfoLogRepository supplierUserInfoLogRepository, ISupplierBuyerUserLogRepository supplierBuyerUserLogRepository,
                                   RedisUtils redisUtils) {
         this.supplierBasicInfoRepository = supplierBasicInfoRepository;
         this.qualificationInfoRepository = qualificationInfoRepository;
+        this.supplierIndustryRepository = supplierIndustryRepository;
         this.registerInfoRepository = registerInfoRepository;
         this.supplierUserInfoRepository = supplierUserInfoRepository;
         this.supplierBuyerUserRepository = supplierBuyerUserRepository;
         this.supplierBasicInfoLogRepository = supplierBasicInfoLogRepository;
         this.qualificationInfoLogRepository = qualificationInfoLogRepository;
+        this.supplierIndustryLogRepository = supplierIndustryLogRepository;
         this.registerInfoLogRepository = registerInfoLogRepository;
         this.supplierUserInfoLogRepository = supplierUserInfoLogRepository;
         this.supplierBuyerUserLogRepository = supplierBuyerUserLogRepository;
@@ -151,7 +161,19 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         supplierBasicInfoLogRepository.save(basicInfoLogPo);
 
         // 主营行业信息更新
-
+        supplierIndustryLogRepository.updateByOneParams(SupplierIndustryLogPo::getStatus, Constant.STATUS_DEL,
+                SupplierIndustryLogPo::getSupplierId, supplierId);
+        final List<Long> industryList = request.getIndustryList();
+        if (CollectionUtil.isNotEmpty(industryList)) {
+            List<SupplierIndustryLogPo> supplierIndustryLogPoList = new ArrayList<>();
+            for (Long industryId : industryList) {
+                SupplierIndustryLogPo industryLogPo = new SupplierIndustryLogPo();
+                industryLogPo.setSupplierId(supplierId);
+                industryLogPo.setIndustryId(industryId);
+                supplierIndustryLogPoList.add(industryLogPo);
+            }
+            supplierIndustryLogRepository.saveBatch(supplierIndustryLogPoList);
+        }
 
         // 供应商资质信息更新
         qualificationInfoLogRepository.updateByOneParams(QualificationInfoLogPo::getStatus, Constant.STATUS_DEL,
@@ -192,10 +214,15 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
     @Transactional(rollbackFor = Exception.class)
     public void delSupplier(Long supplierId) {
         logger.info("[删除供应商]---供应商ID为{}", supplierId);
+        // 标记主表为删除状态
         supplierBasicInfoRepository.updateByOneParams(SupplierBasicInfoPo::getStatus, Constant.STATUS_DEL,
                 SupplierBasicInfoPo::getId, supplierId);
+        // 标记记录表为删除状态
+        supplierBasicInfoLogRepository.updateByOneParams(SupplierBasicInfoLogPo::getStatus, Constant.STATUS_DEL,
+                SupplierBasicInfoLogPo::getSupplierId, supplierId);
     }
 
+    @Override
     public SupplierResponse getSupplierLogBySupplierId(Long supplierId) {
         logger.info("[获取供应商记录信息]---供应商ID为{}", supplierId);
         SupplierResponse response = new SupplierResponse();
@@ -210,8 +237,45 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         final SupplierBasicInfoResponse supplierBasicInfoResponse = SupplierBasicInfoCvt.INSTANCE.logPoToResponse(basicInfoLogPo);
         response.setBasicInfoResponse(supplierBasicInfoResponse);
 
-        // 资质信息
+        // 主营行业信息
+        SupplierIndustryRequest industryRequest = new SupplierIndustryRequest();
+        industryRequest.setSupplierId(supplierId);
+        industryRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final List<SupplierIndustryLogPo> industryLogPoList = supplierIndustryLogRepository.getListByParams(industryRequest);
+        final List<SupplierIndustryResponse> industryResponseList = SupplierIndustryCvt.INSTANCE.logPoToResponse(industryLogPoList);
+        response.setIndustryResponseList(industryResponseList);
 
+        // 供应商资质信息
+        QualificationInfoRequest qualificationInfoRequest = new QualificationInfoRequest();
+        qualificationInfoRequest.setSupplierId(supplierId);
+        qualificationInfoRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final QualificationInfoLogPo qualificationInfoLogPo = qualificationInfoLogRepository.getByParams(qualificationInfoRequest);
+        final QualificationInfoResponse qualificationInfoResponse = QualificationInfoCvt.INSTANCE.logPoToResponse(qualificationInfoLogPo);
+        response.setQualificationInfoResponse(qualificationInfoResponse);
+
+        // 公司注册信息
+        RegisterInfoRequest registerInfoRequest = new RegisterInfoRequest();
+        registerInfoRequest.setSupplierId(supplierId);
+        registerInfoRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final RegisterInfoLogPo registerInfoLogPo = registerInfoLogRepository.getByParams(registerInfoRequest);
+        final RegisterInfoResponse registerInfoResponse = RegisterInfoCvt.INSTANCE.logPoToResponse(registerInfoLogPo);
+        response.setRegisterInfoResponse(registerInfoResponse);
+
+        // 供应商联系人信息
+        SupplierUserInfoRequest userInfoRequest = new SupplierUserInfoRequest();
+        userInfoRequest.setSupplierId(supplierId);
+        userInfoRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final SupplierUserInfoLogPo userInfoLogPo = supplierUserInfoLogRepository.getByParams(userInfoRequest);
+        final SupplierUserInfoResponse userInfoResponse = SupplierUserInfoCvt.INSTANCE.logPoToResponse(userInfoLogPo);
+        response.setSupplierUserInfoResponse(userInfoResponse);
+
+        // 采购员信息
+        SupplierBuyerUserRequest buyerUserRequest = new SupplierBuyerUserRequest();
+        buyerUserRequest.setSupplierId(supplierId);
+        buyerUserRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final SupplierBuyerUserLogPo buyerUserLogPo = supplierBuyerUserLogRepository.getByParams(buyerUserRequest);
+        final SupplierBuyerUserResponse buyerUserResponse = SupplierBuyerUserCvt.INSTANCE.logPoToResponse(buyerUserLogPo);
+        response.setSupplierBuyerUserResponse(buyerUserResponse);
 
         return response;
     }
