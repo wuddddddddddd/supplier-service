@@ -370,7 +370,18 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
 
     }
 
-    public void checkReject(Long supplierId, String reason) {
-
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void checkReject(Long supplierId, String reason, Long currentUserId) {
+        logger.info("[供应商审批驳回]---供应商ID为{}", supplierId);
+        // 修改状态为驳回状态
+        supplierBasicInfoLogRepository.updateByOneParams(SupplierBasicInfoLogPo::getBusinessStatus, BusinessStatusEnum.PROCESS_REJECT.getCode(),
+                SupplierBasicInfoLogPo::getSupplierId, supplierId);
+        // 保存审批信息
+        CheckOpinionPo checkOpinionPo = new CheckOpinionPo();
+        checkOpinionPo.setSupplierId(supplierId);
+        checkOpinionPo.setAssigneeId(currentUserId);
+        checkOpinionPo.setOpinionType(BusinessStatusEnum.PROCESS_REJECT.getCode());
+        checkOpinionRepository.save(checkOpinionPo);
     }
 }

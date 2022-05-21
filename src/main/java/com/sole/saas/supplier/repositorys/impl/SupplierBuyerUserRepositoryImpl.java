@@ -1,6 +1,7 @@
 package com.sole.saas.supplier.repositorys.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sole.saas.common.aops.BaseData;
 import com.sole.saas.common.constant.OperatorType;
@@ -9,6 +10,9 @@ import com.sole.saas.supplier.models.po.SupplierBuyerUserPo;
 import com.sole.saas.supplier.models.request.SupplierBuyerUserRequest;
 import com.sole.saas.supplier.repositorys.ISupplierBuyerUserRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author wjd
@@ -37,9 +41,21 @@ public class SupplierBuyerUserRepositoryImpl extends ServiceImpl<SupplierBuyerUs
     }
 
     @Override
+    @BaseData(fill = OperatorType.UPDATE)
+    public boolean updateBatchById(Collection<SupplierBuyerUserPo> entityList) {
+        return super.updateBatchById(entityList);
+    }
+
+    @Override
     public SupplierBuyerUserPo getByParams(SupplierBuyerUserRequest request) {
         final LambdaQueryWrapper<SupplierBuyerUserPo> queryWrapper = this.getQueryWrapper(request);
         return supplierBuyerUserMapper.selectOne(queryWrapper);
+    }
+
+    @Override
+    public List<SupplierBuyerUserPo> getListByParams(SupplierBuyerUserRequest request) {
+        final LambdaQueryWrapper<SupplierBuyerUserPo> queryWrapper = this.getQueryWrapper(request);
+        return supplierBuyerUserMapper.selectList(queryWrapper);
     }
 
     /**

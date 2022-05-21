@@ -1,5 +1,6 @@
 package com.sole.saas.supplier.services.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sole.saas.common.constant.Constant;
@@ -219,5 +220,24 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         businessHistoryPo.setOldBusinessStatus(basicInfoPo.getBusinessStatus());
         businessHistoryPo.setRemark(reason);
         businessHistoryRepository.save(businessHistoryPo);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateBuyerUser(SupplierBuyerUserRequest request) {
+        logger.info("[分配供应商]----分配采购员为{}", request.getBuyerUserId());
+        SupplierBuyerUserRequest buyerUserRequest = new SupplierBuyerUserRequest();
+        buyerUserRequest.setSupplierIdList(request.getSupplierIdList());
+        buyerUserRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final List<SupplierBuyerUserPo> buyerUserPoList = supplierBuyerUserRepository.getListByParams(buyerUserRequest);
+        if (CollectionUtil.isEmpty(buyerUserPoList)) {
+            return;
+        }
+        for (SupplierBuyerUserPo buyerUserPo : buyerUserPoList) {
+            final Long oldBuyerUserId = buyerUserPo.getBuyerUserId();
+            buyerUserPo.setOldBuyerUserId(oldBuyerUserId);
+            buyerUserPo.setBuyerUserId(request.getBuyerUserId());
+        }
+        supplierBuyerUserRepository.updateBatchById(buyerUserPoList);
     }
 }

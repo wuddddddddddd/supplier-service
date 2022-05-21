@@ -23,6 +23,7 @@
         <result property="cityId" column="city_id" />
         <result property="districtId" column="district_id" />
         <result property="buyerUserId" column="buyer_user_id" />
+        <result property="oldBuyerUserId" column="old_buyer_user_id" />
     </resultMap>
 
     <sql id="tableName">
@@ -40,7 +41,7 @@
             qi.credit_code,
             ui.account as user_account, ui.`name` as user_name, ui.telephone as user_telephone, ui.email as user_email,
             ri.registered_date, ri.province_id, ri.city_id, ri.district_id,
-            bu.buyer_user_id
+            bu.buyer_user_id, bu.old_buyer_user_id
         FROM
             supplier_basic_info bi
                 LEFT JOIN supplier_qualification_info qi on bi.id = qi.supplier_id

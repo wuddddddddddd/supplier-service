@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.sole.saas.supplier.models.po.SupplierBuyerUserPo;
 import com.sole.saas.supplier.models.request.SupplierBuyerUserRequest;
 
+import java.util.List;
+
 /**
  * @author wjd
  * @description
@@ -13,4 +15,5 @@ public interface ISupplierBuyerUserRepository extends IService<SupplierBuyerUser
 
     SupplierBuyerUserPo getByParams(SupplierBuyerUserRequest request);
 
+    List<SupplierBuyerUserPo> getListByParams(SupplierBuyerUserRequest request);
 }

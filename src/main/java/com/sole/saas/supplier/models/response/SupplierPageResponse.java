@@ -83,6 +83,9 @@ public class SupplierPageResponse implements Serializable {
     @ApiModelProperty(value = "所属采购员ID")
     private Long buyerUserId;
 
+    @ApiModelProperty(value = "原所属采购员ID")
+    private Long oldBuyerUserId;
+
 
     @ApiModelProperty(value = "经营类型对应业务字典ID")
     private String manageTypeName;
