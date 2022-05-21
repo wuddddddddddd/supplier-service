@@ -27,4 +27,8 @@ public interface QualificationInfoCvt {
     QualificationInfoLogPo requestToLog(QualificationInfoRequest request);
 
     QualificationInfoResponse logPoToResponse(QualificationInfoLogPo logPo);
+
+    QualificationInfoPo logPoToPo(QualificationInfoLogPo logPo);
+
+
 }

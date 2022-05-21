@@ -19,7 +19,9 @@ public interface SupplierIndustryCvt {
     SupplierIndustryCvt INSTANCE = Mappers.getMapper(SupplierIndustryCvt.class);
 
 
-    List<SupplierIndustryResponse> poToResponse(List<SupplierIndustryPo> list);
+    List<SupplierIndustryResponse> poToResponseBatch(List<SupplierIndustryPo> poList);
 
-    List<SupplierIndustryResponse> logPoToResponse(List<SupplierIndustryLogPo> list);
+    List<SupplierIndustryResponse> logPoToResponseBatch(List<SupplierIndustryLogPo> logPoList);
+
+    List<SupplierIndustryPo> logPoToPoBatch(List<SupplierIndustryLogPo> logPoList);
 }

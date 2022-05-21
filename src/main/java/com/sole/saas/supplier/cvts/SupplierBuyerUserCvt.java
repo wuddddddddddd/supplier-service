@@ -26,4 +26,6 @@ public interface SupplierBuyerUserCvt {
     SupplierBuyerUserLogPo requestToLogPo(SupplierBuyerUserRequest request);
 
     SupplierBuyerUserResponse logPoToResponse(SupplierBuyerUserLogPo logPo);
+
+    SupplierBuyerUserPo logPoToPo(SupplierBuyerUserLogPo logPo);
 }

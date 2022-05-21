@@ -23,4 +23,6 @@ public interface ISupplierLogService {
     SupplierResponse getSupplierLogBySupplierId(Long supplierId);
 
     IPage<SupplierPageResponse> getSupplierLogPageByParams(SupplierPageRequest request);
+
+    void checkApproval(Long supplierId, Long currentUserId);
 }

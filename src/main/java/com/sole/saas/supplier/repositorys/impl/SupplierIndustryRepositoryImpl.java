@@ -1,6 +1,9 @@
 package com.sole.saas.supplier.repositorys.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sole.saas.common.aops.BaseData;
 import com.sole.saas.common.constant.OperatorType;
@@ -30,7 +33,20 @@ public class SupplierIndustryRepositoryImpl extends ServiceImpl<SupplierIndustry
     @Override
     @BaseData(fill = OperatorType.INSERT)
     public boolean saveBatch(Collection<SupplierIndustryPo> entityList) {
+        if (CollectionUtil.isEmpty(entityList)) {
+            return false;
+        }
         return super.saveBatch(entityList);
+    }
+
+    @Override
+    public int updateByOneParams(SFunction<SupplierIndustryPo, ?> updateColumn, Object updateValue,
+                                 SFunction<SupplierIndustryPo, ?> conditionColumn, Object conditionValue) {
+
+        final LambdaUpdateWrapper<SupplierIndustryPo> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(updateColumn, updateValue);
+        updateWrapper.eq(conditionColumn, conditionValue);
+        return supplierIndustryMapper.update(null, updateWrapper);
     }
 
     @Override

@@ -58,6 +58,8 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
 
     private final ISupplierBuyerUserLogRepository supplierBuyerUserLogRepository;
 
+    private final ICheckOpinionRepository checkOpinionRepository;
+
     private final RedisUtils redisUtils;
 
     private final SupplierUtil supplierUtil;
@@ -68,7 +70,8 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
                                   ISupplierBasicInfoLogRepository supplierBasicInfoLogRepository, IQualificationInfoLogRepository qualificationInfoLogRepository,
                                   ISupplierIndustryLogRepository supplierIndustryLogRepository, IRegisterInfoLogRepository registerInfoLogRepository,
                                   ISupplierUserInfoLogRepository supplierUserInfoLogRepository, ISupplierBuyerUserLogRepository supplierBuyerUserLogRepository,
-                                  RedisUtils redisUtils, SupplierUtil supplierUtil) {
+                                  ICheckOpinionRepository checkOpinionRepository, RedisUtils redisUtils,
+                                  SupplierUtil supplierUtil) {
         this.supplierBasicInfoRepository = supplierBasicInfoRepository;
         this.qualificationInfoRepository = qualificationInfoRepository;
         this.supplierIndustryRepository = supplierIndustryRepository;
@@ -81,6 +84,7 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         this.registerInfoLogRepository = registerInfoLogRepository;
         this.supplierUserInfoLogRepository = supplierUserInfoLogRepository;
         this.supplierBuyerUserLogRepository = supplierBuyerUserLogRepository;
+        this.checkOpinionRepository = checkOpinionRepository;
         this.redisUtils = redisUtils;
         this.supplierUtil = supplierUtil;
     }
@@ -240,7 +244,7 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         industryRequest.setSupplierId(supplierId);
         industryRequest.setStatus(Constant.STATUS_NOT_DEL);
         final List<SupplierIndustryLogPo> industryLogPoList = supplierIndustryLogRepository.getListByParams(industryRequest);
-        final List<SupplierIndustryResponse> industryResponseList = SupplierIndustryCvt.INSTANCE.logPoToResponse(industryLogPoList);
+        final List<SupplierIndustryResponse> industryResponseList = SupplierIndustryCvt.INSTANCE.logPoToResponseBatch(industryLogPoList);
         response.setIndustryResponseList(industryResponseList);
 
         // 供应商资质信息
@@ -290,5 +294,83 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         final List<SupplierPageResponse> list = pageResponse.getRecords();
         supplierUtil.getSupplierPageInfo(list);
         return pageResponse;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void checkApproval(Long supplierId, Long currentUserId) {
+        logger.info("[供应商审批通过]---供应商ID为{}", supplierId);
+
+        // 修改记录表业务状态为审批通过
+        supplierBasicInfoLogRepository.updateByOneParams(SupplierBasicInfoLogPo::getBusinessStatus, BusinessStatusEnum.PROCESS_SUCCESS.getCode(),
+                SupplierBasicInfoLogPo::getSupplierId, supplierId);
+
+        // 将记录表数据更新到主表
+        // 基础信息表数据更新
+        SupplierBasicInfoRequest supplierBasicInfoRequest = new SupplierBasicInfoRequest();
+        supplierBasicInfoRequest.setSupplierId(supplierId);
+        supplierBasicInfoRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final SupplierBasicInfoLogPo basicInfoLogPo = supplierBasicInfoLogRepository.getByParams(supplierBasicInfoRequest);
+        ExceptionUtils.error(null == basicInfoLogPo)
+                .errorMessage(null, "根据供应商ID{}未获取到记录信息", supplierId);
+        final SupplierBasicInfoPo basicInfoPo = SupplierBasicInfoCvt.INSTANCE.logPoToPo(basicInfoLogPo);
+        basicInfoPo.setId(supplierId);
+        supplierBasicInfoRepository.save(basicInfoPo);
+
+        // 主营行业信息更新
+        supplierIndustryRepository.updateByOneParams(SupplierIndustryPo::getStatus, Constant.STATUS_DEL,
+                SupplierIndustryPo::getSupplierId, supplierId);
+        SupplierIndustryRequest industryRequest = new SupplierIndustryRequest();
+        industryRequest.setSupplierId(supplierId);
+        industryRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final List<SupplierIndustryLogPo> industryLogPoList = supplierIndustryLogRepository.getListByParams(industryRequest);
+        final List<SupplierIndustryPo> industryPoList = SupplierIndustryCvt.INSTANCE.logPoToPoBatch(industryLogPoList);
+        supplierIndustryRepository.saveBatch(industryPoList);
+
+        // 供应商资质信息更新
+        qualificationInfoRepository.updateByOneParams(QualificationInfoPo::getStatus, Constant.STATUS_DEL,
+                QualificationInfoPo::getSupplierId, supplierId);
+        QualificationInfoRequest qualificationInfoRequest = new QualificationInfoRequest();
+        qualificationInfoRequest.setSupplierId(supplierId);
+        qualificationInfoRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final QualificationInfoLogPo qualificationInfoLogPo = qualificationInfoLogRepository.getByParams(qualificationInfoRequest);
+        final QualificationInfoPo qualificationInfoPo = QualificationInfoCvt.INSTANCE.logPoToPo(qualificationInfoLogPo);
+        qualificationInfoRepository.save(qualificationInfoPo);
+
+        // 公司注册信息更新
+        RegisterInfoRequest registerInfoRequest = new RegisterInfoRequest();
+        registerInfoRequest.setSupplierId(supplierId);
+        registerInfoRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final RegisterInfoLogPo registerInfoLogPo = registerInfoLogRepository.getByParams(registerInfoRequest);
+        final RegisterInfoPo registerInfoPo = RegisterInfoCvt.INSTANCE.logPoToPo(registerInfoLogPo);
+        registerInfoRepository.save(registerInfoPo);
+
+        // 供应商联系人信息更新
+        SupplierUserInfoRequest userInfoRequest = new SupplierUserInfoRequest();
+        userInfoRequest.setSupplierId(supplierId);
+        userInfoRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final SupplierUserInfoLogPo userInfoLogPo = supplierUserInfoLogRepository.getByParams(userInfoRequest);
+        final SupplierUserInfoPo supplierUserInfoPo = SupplierUserInfoCvt.INSTANCE.logPoToPo(userInfoLogPo);
+        supplierUserInfoRepository.save(supplierUserInfoPo);
+
+        // 采购员信息更新
+        SupplierBuyerUserRequest buyerUserRequest = new SupplierBuyerUserRequest();
+        buyerUserRequest.setSupplierId(supplierId);
+        buyerUserRequest.setStatus(Constant.STATUS_NOT_DEL);
+        final SupplierBuyerUserLogPo buyerUserLogPo = supplierBuyerUserLogRepository.getByParams(buyerUserRequest);
+        final SupplierBuyerUserPo buyerUserPo = SupplierBuyerUserCvt.INSTANCE.logPoToPo(buyerUserLogPo);
+        supplierBuyerUserRepository.save(buyerUserPo);
+
+        // 保存审批信息
+        CheckOpinionPo checkOpinionPo = new CheckOpinionPo();
+        checkOpinionPo.setSupplierId(supplierId);
+        checkOpinionPo.setAssigneeId(currentUserId);
+        checkOpinionPo.setOpinionType(BusinessStatusEnum.PROCESS_SUCCESS.getCode());
+        checkOpinionRepository.save(checkOpinionPo);
+
+    }
+
+    public void checkReject(Long supplierId, String reason) {
+
     }
 }

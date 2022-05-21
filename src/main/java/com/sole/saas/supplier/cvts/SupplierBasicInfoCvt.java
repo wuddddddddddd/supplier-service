@@ -28,4 +28,6 @@ public interface SupplierBasicInfoCvt {
 
     SupplierBasicInfoResponse logPoToResponse(SupplierBasicInfoLogPo logPo);
 
+    SupplierBasicInfoPo logPoToPo(SupplierBasicInfoLogPo logPo);
+
 }

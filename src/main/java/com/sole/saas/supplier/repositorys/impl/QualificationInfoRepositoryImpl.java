@@ -1,11 +1,14 @@
 package com.sole.saas.supplier.repositorys.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sole.saas.common.aops.BaseData;
 import com.sole.saas.common.constant.OperatorType;
 import com.sole.saas.supplier.mappers.QualificationInfoMapper;
 import com.sole.saas.supplier.models.po.QualificationInfoPo;
+import com.sole.saas.supplier.models.po.SupplierIndustryPo;
 import com.sole.saas.supplier.models.request.QualificationInfoRequest;
 import com.sole.saas.supplier.repositorys.IQualificationInfoRepository;
 import org.springframework.stereotype.Repository;
@@ -34,6 +37,16 @@ public class QualificationInfoRepositoryImpl extends ServiceImpl<QualificationIn
     @BaseData(fill = OperatorType.UPDATE)
     public boolean updateById(QualificationInfoPo entity) {
         return super.updateById(entity);
+    }
+
+
+    @Override
+    public int updateByOneParams(SFunction<QualificationInfoPo, ?> updateColumn, Object updateValue,
+                                 SFunction<QualificationInfoPo, ?> conditionColumn, Object conditionValue) {
+        final LambdaUpdateWrapper<QualificationInfoPo> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(updateColumn, updateValue);
+        updateWrapper.eq(conditionColumn, conditionValue);
+        return qualificationInfoMapper.update(null, updateWrapper);
     }
 
     @Override

@@ -28,5 +28,7 @@ public interface RegisterInfoCvt {
 
     RegisterInfoResponse logPoToResponse(RegisterInfoLogPo logPo);
 
+    RegisterInfoPo logPoToPo(RegisterInfoLogPo logPo);
+
 
 }

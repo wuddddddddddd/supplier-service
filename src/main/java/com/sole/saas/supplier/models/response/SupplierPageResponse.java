@@ -24,6 +24,9 @@ public class SupplierPageResponse implements Serializable {
     private Long id;
 
     @ApiModelProperty(value = "供应商编码")
+    private String supplierId;
+
+    @ApiModelProperty(value = "供应商编码")
     private String supplierCode;
 
     @ApiModelProperty(value = "供应商名称")

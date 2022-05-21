@@ -76,7 +76,7 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         industryRequest.setSupplierId(supplierId);
         industryRequest.setStatus(Constant.STATUS_NOT_DEL);
         final List<SupplierIndustryPo> industryPoList = supplierIndustryRepository.getListByParams(industryRequest);
-        final List<SupplierIndustryResponse> industryResponseList = SupplierIndustryCvt.INSTANCE.poToResponse(industryPoList);
+        final List<SupplierIndustryResponse> industryResponseList = SupplierIndustryCvt.INSTANCE.poToResponseBatch(industryPoList);
         response.setIndustryResponseList(industryResponseList);
 
 
