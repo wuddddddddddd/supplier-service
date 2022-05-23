@@ -17,7 +17,7 @@ public interface IOfflineAchievementService {
 
     void delOfflineAchievement(Long id);
 
-    void checkApproval(Long id);
+    void checkApproval(Long id, Long currentUserId);
 
     void checkReject(Long id, String reason, Long currentUserId);
 
