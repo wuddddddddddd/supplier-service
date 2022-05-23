@@ -4,10 +4,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sole.saas.common.constant.Constant;
 import com.sole.saas.supplier.constant.BusinessStatusEnum;
+import com.sole.saas.supplier.constant.OpinionTypeEnum;
 import com.sole.saas.supplier.cvts.OfflineAchievementCvt;
+import com.sole.saas.supplier.models.po.CheckOpinionPo;
 import com.sole.saas.supplier.models.po.OfflineAchievementPo;
 import com.sole.saas.supplier.models.request.OfflineAchievementRequest;
 import com.sole.saas.supplier.models.response.OfflineAchievementResponse;
+import com.sole.saas.supplier.repositorys.ICheckOpinionRepository;
 import com.sole.saas.supplier.repositorys.IOfflineAchievementRepository;
 import com.sole.saas.supplier.services.IOfflineAchievementService;
 import org.slf4j.Logger;
@@ -28,8 +31,11 @@ public class OfflineAchievementServiceImpl implements IOfflineAchievementService
 
     private final IOfflineAchievementRepository offlineAchievementRepository;
 
-    public OfflineAchievementServiceImpl(IOfflineAchievementRepository offlineAchievementRepository) {
+    private final ICheckOpinionRepository checkOpinionRepository;
+
+    public OfflineAchievementServiceImpl(IOfflineAchievementRepository offlineAchievementRepository, ICheckOpinionRepository checkOpinionRepository) {
         this.offlineAchievementRepository = offlineAchievementRepository;
+        this.checkOpinionRepository = checkOpinionRepository;
     }
 
     @Override
@@ -74,10 +80,19 @@ public class OfflineAchievementServiceImpl implements IOfflineAchievementService
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void checkReject(Long id) {
+    public void checkReject(Long id, String reason, Long currentUserId) {
         logger.info("[线下业绩信息审批驳回]---主键ID为{}", id);
+        // 修改业务状态
         offlineAchievementRepository.updateByOneParams(OfflineAchievementPo::getBusinessStatus, BusinessStatusEnum.PROCESS_REJECT,
                 OfflineAchievementPo::getId, id);
+
+        // 保存审批信息
+        CheckOpinionPo checkOpinionPo = new CheckOpinionPo();
+        checkOpinionPo.setType(OpinionTypeEnum.OFFLINE_ACHIEVEMENT.getCode());
+        checkOpinionPo.setBusinessId(id);
+        checkOpinionPo.setAssigneeId(currentUserId);
+        checkOpinionPo.setOpinionType(BusinessStatusEnum.PROCESS_SUCCESS.getCode());
+        checkOpinionRepository.save(checkOpinionPo);
     }
 
     @Override

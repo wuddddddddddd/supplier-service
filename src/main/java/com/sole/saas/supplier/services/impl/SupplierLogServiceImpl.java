@@ -9,6 +9,7 @@ import com.sole.saas.common.constant.Constant;
 import com.sole.saas.common.utils.ExceptionUtils;
 import com.sole.saas.common.utils.RedisUtils;
 import com.sole.saas.supplier.constant.BusinessStatusEnum;
+import com.sole.saas.supplier.constant.OpinionTypeEnum;
 import com.sole.saas.supplier.constant.SupplierConstant;
 import com.sole.saas.supplier.cvts.*;
 import com.sole.saas.supplier.models.po.*;
@@ -363,7 +364,8 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
 
         // 保存审批信息
         CheckOpinionPo checkOpinionPo = new CheckOpinionPo();
-        checkOpinionPo.setSupplierId(supplierId);
+        checkOpinionPo.setType(OpinionTypeEnum.SUPPLIER.getCode());
+        checkOpinionPo.setBusinessId(supplierId);
         checkOpinionPo.setAssigneeId(currentUserId);
         checkOpinionPo.setOpinionType(BusinessStatusEnum.PROCESS_SUCCESS.getCode());
         checkOpinionRepository.save(checkOpinionPo);
@@ -379,7 +381,8 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
                 SupplierBasicInfoLogPo::getSupplierId, supplierId);
         // 保存审批信息
         CheckOpinionPo checkOpinionPo = new CheckOpinionPo();
-        checkOpinionPo.setSupplierId(supplierId);
+        checkOpinionPo.setType(OpinionTypeEnum.SUPPLIER.getCode());
+        checkOpinionPo.setBusinessId(supplierId);
         checkOpinionPo.setAssigneeId(currentUserId);
         checkOpinionPo.setOpinionType(BusinessStatusEnum.PROCESS_REJECT.getCode());
         checkOpinionRepository.save(checkOpinionPo);

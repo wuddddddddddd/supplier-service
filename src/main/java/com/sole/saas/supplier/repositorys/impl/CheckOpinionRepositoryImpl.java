@@ -51,8 +51,11 @@ public class CheckOpinionRepositoryImpl extends ServiceImpl<CheckOpinionMapper, 
         if (null != request.getId()) {
             queryWrapper.eq(CheckOpinionPo::getId, request.getId());
         }
-        if (null != request.getSupplierId()) {
-            queryWrapper.in(CheckOpinionPo::getSupplierId, request.getSupplierId());
+        if (null != request.getType()) {
+            queryWrapper.in(CheckOpinionPo::getType, request.getType());
+        }
+        if (null != request.getBusinessId()) {
+            queryWrapper.in(CheckOpinionPo::getBusinessId, request.getBusinessId());
         }
         if (null != request.getStatus()) {
             queryWrapper.eq(CheckOpinionPo::getStatus, request.getStatus());

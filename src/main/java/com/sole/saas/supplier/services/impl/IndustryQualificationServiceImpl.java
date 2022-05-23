@@ -4,10 +4,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sole.saas.common.constant.Constant;
 import com.sole.saas.supplier.constant.BusinessStatusEnum;
+import com.sole.saas.supplier.constant.OpinionTypeEnum;
 import com.sole.saas.supplier.cvts.IndustryQualificationCvt;
+import com.sole.saas.supplier.models.po.CheckOpinionPo;
 import com.sole.saas.supplier.models.po.IndustryQualificationPo;
 import com.sole.saas.supplier.models.request.IndustryQualificationRequest;
 import com.sole.saas.supplier.models.response.IndustryQualificationResponse;
+import com.sole.saas.supplier.repositorys.ICheckOpinionRepository;
 import com.sole.saas.supplier.repositorys.IIndustryQualificationRepository;
 import com.sole.saas.supplier.services.IIndustryQualificationService;
 import org.slf4j.Logger;
@@ -29,8 +32,11 @@ public class IndustryQualificationServiceImpl implements IIndustryQualificationS
 
     private final IIndustryQualificationRepository industryQualificationRepository;
 
-    public IndustryQualificationServiceImpl(IIndustryQualificationRepository industryQualificationRepository) {
+    private final ICheckOpinionRepository checkOpinionRepository;
+
+    public IndustryQualificationServiceImpl(IIndustryQualificationRepository industryQualificationRepository, ICheckOpinionRepository checkOpinionRepository) {
         this.industryQualificationRepository = industryQualificationRepository;
+        this.checkOpinionRepository = checkOpinionRepository;
     }
 
 
@@ -76,10 +82,19 @@ public class IndustryQualificationServiceImpl implements IIndustryQualificationS
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void checkReject(Long id) {
+    public void checkReject(Long id, String reason, Long currentUserId) {
         logger.info("[行业资质信息审批驳回]---主键ID为{}", id);
+        // 修改业务状态
+        IndustryQualificationPo industryQualificationPo = new IndustryQualificationPo();
         industryQualificationRepository.updateByOneParams(IndustryQualificationPo::getBusinessStatus, BusinessStatusEnum.PROCESS_REJECT.getCode(),
                 IndustryQualificationPo::getId, id);
+        // 保存审批信息
+        CheckOpinionPo checkOpinionPo = new CheckOpinionPo();
+        checkOpinionPo.setType(OpinionTypeEnum.INDUSTRY_QUALIFICATION.getCode());
+        checkOpinionPo.setBusinessId(id);
+        checkOpinionPo.setAssigneeId(currentUserId);
+        checkOpinionPo.setOpinionType(BusinessStatusEnum.PROCESS_SUCCESS.getCode());
+        checkOpinionRepository.save(checkOpinionPo);
     }
 
     @Override

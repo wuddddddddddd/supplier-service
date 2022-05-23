@@ -23,8 +23,11 @@ public class CheckOpinionResponse implements Serializable {
     @ApiModelProperty(value = "主键ID")
     private Long id;
 
-    @ApiModelProperty(value = "供应商基础信息主键ID")
-    private Long supplierId;
+    @ApiModelProperty(value = "类型")
+    private Integer type;
+
+    @ApiModelProperty(value = "业务主键ID")
+    private Long businessId;
 
     @ApiModelProperty(value = "审批人ID")
     private Long assigneeId;

@@ -19,7 +19,7 @@ public interface IIndustryQualificationService {
 
     void checkApproval(Long id);
 
-    void checkReject(Long id);
+    void checkReject(Long id, String reason, Long currentUserId)
 
     IPage<IndustryQualificationResponse> getPageInfo(IndustryQualificationRequest request);
 }
