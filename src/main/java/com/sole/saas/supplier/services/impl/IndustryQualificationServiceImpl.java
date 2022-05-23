@@ -42,6 +42,7 @@ public class IndustryQualificationServiceImpl implements IIndustryQualificationS
         final IndustryQualificationPo industryQualificationPo = IndustryQualificationCvt.INSTANCE.requestToPo(request);
         // 业务状态为审批中
         industryQualificationPo.setBusinessStatus(BusinessStatusEnum.IN_PROCESS.getCode());
+        // 保存
         industryQualificationRepository.save(industryQualificationPo);
     }
 
@@ -53,6 +54,7 @@ public class IndustryQualificationServiceImpl implements IIndustryQualificationS
         final IndustryQualificationPo industryQualificationPo = IndustryQualificationCvt.INSTANCE.requestToPo(request);
         // 业务状态为审批中
         industryQualificationPo.setBusinessStatus(BusinessStatusEnum.IN_PROCESS.getCode());
+        // 根据主键ID修改
         industryQualificationRepository.updateById(industryQualificationPo);
     }
 
