@@ -238,6 +238,7 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         ExceptionUtils.error(null == basicInfoLogPo)
                 .errorMessage(null, "根据供应商ID{}未获取到记录信息", supplierId);
         final SupplierBasicInfoResponse supplierBasicInfoResponse = SupplierBasicInfoCvt.INSTANCE.logPoToResponse(basicInfoLogPo);
+
         response.setBasicInfoResponse(supplierBasicInfoResponse);
 
         // 主营行业信息

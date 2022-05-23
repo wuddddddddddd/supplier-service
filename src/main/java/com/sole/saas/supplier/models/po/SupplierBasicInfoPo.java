@@ -23,7 +23,6 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper=false)
 @TableName("supplier_basic_info")
 public class SupplierBasicInfoPo extends Model<SupplierBasicInfoPo> {
-
     private static final long serialVersionUID = 8840618539726605974L;
 
 

@@ -28,7 +28,13 @@ public enum BusinessStatusEnum {
 
     NOT_DEAL(8, "未处理"),
 
-    DEAL_DONE(9, "已处理");
+    DEAL_DONE(9, "已处理"),
+
+    NOT_ACTIVE(10, "未生效"),
+
+    IN_ACTIVE(11, "已生效"),
+
+    EXPIRE(12, "已过期");
 
     private int code;
 

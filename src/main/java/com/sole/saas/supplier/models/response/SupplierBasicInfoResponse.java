@@ -79,4 +79,7 @@ public class SupplierBasicInfoResponse implements Serializable {
     @ApiModelProperty(value = "状态")
     private Integer status;
 
+    @ApiModelProperty(value = "公司性质名")
+    private String companyNatureName;
+
 }
