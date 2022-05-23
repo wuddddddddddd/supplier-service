@@ -74,10 +74,16 @@ public class IndustryQualificationServiceImpl implements IIndustryQualificationS
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void checkApproval(Long id) {
+    public void checkApproval(Long id, Long currentUserId) {
         logger.info("[行业资质信息审批通过]---主键ID为{}", id);
         industryQualificationRepository.updateByOneParams(IndustryQualificationPo::getBusinessStatus, BusinessStatusEnum.PROCESS_SUCCESS.getCode(),
                 IndustryQualificationPo::getId, id);
+        CheckOpinionPo checkOpinionPo = new CheckOpinionPo();
+        checkOpinionPo.setType(OpinionTypeEnum.INDUSTRY_QUALIFICATION.getCode());
+        checkOpinionPo.setBusinessId(id);
+        checkOpinionPo.setAssigneeId(currentUserId);
+        checkOpinionPo.setOpinionType(BusinessStatusEnum.PROCESS_SUCCESS.getCode());
+        checkOpinionRepository.save(checkOpinionPo);
     }
 
     @Override
@@ -85,7 +91,6 @@ public class IndustryQualificationServiceImpl implements IIndustryQualificationS
     public void checkReject(Long id, String reason, Long currentUserId) {
         logger.info("[行业资质信息审批驳回]---主键ID为{}", id);
         // 修改业务状态
-        IndustryQualificationPo industryQualificationPo = new IndustryQualificationPo();
         industryQualificationRepository.updateByOneParams(IndustryQualificationPo::getBusinessStatus, BusinessStatusEnum.PROCESS_REJECT.getCode(),
                 IndustryQualificationPo::getId, id);
         // 保存审批信息
@@ -93,7 +98,8 @@ public class IndustryQualificationServiceImpl implements IIndustryQualificationS
         checkOpinionPo.setType(OpinionTypeEnum.INDUSTRY_QUALIFICATION.getCode());
         checkOpinionPo.setBusinessId(id);
         checkOpinionPo.setAssigneeId(currentUserId);
-        checkOpinionPo.setOpinionType(BusinessStatusEnum.PROCESS_SUCCESS.getCode());
+        checkOpinionPo.setOpinionType(BusinessStatusEnum.PROCESS_REJECT.getCode());
+        checkOpinionPo.setRemark(reason);
         checkOpinionRepository.save(checkOpinionPo);
     }
 

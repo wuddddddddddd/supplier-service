@@ -12,9 +12,5 @@ import java.util.List;
  */
 public interface ICheckOpinionService {
 
-    void checkApproval(CheckOpinionRequest request);
-
-    void checkReject(CheckOpinionRequest request);
-
     List<CheckOpinionResponse> getOpinionListByParams(CheckOpinionRequest request);
 }

@@ -17,9 +17,9 @@ public interface IIndustryQualificationService {
 
     void delIndustryQualification(Long id);
 
-    void checkApproval(Long id);
+    void checkApproval(Long id, Long currentUserId);
 
-    void checkReject(Long id, String reason, Long currentUserId)
+    void checkReject(Long id, String reason, Long currentUserId);
 
     IPage<IndustryQualificationResponse> getPageInfo(IndustryQualificationRequest request);
 }

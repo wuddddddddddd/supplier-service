@@ -385,6 +385,7 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         checkOpinionPo.setBusinessId(supplierId);
         checkOpinionPo.setAssigneeId(currentUserId);
         checkOpinionPo.setOpinionType(BusinessStatusEnum.PROCESS_REJECT.getCode());
+        checkOpinionPo.setRemark(reason);
         checkOpinionRepository.save(checkOpinionPo);
     }
 }
