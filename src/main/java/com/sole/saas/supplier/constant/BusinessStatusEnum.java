@@ -24,7 +24,11 @@ public enum BusinessStatusEnum {
 
     STOP_COOPERATION(6, "终止合作"),
 
-    BLACK(7, "加黑");
+    BLACK(7, "加黑"),
+
+    NOT_DEAL(8, "未处理"),
+
+    DEAL_DONE(9, "已处理");
 
     private int code;
 
