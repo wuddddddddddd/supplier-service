@@ -2,10 +2,11 @@ package com.sole.saas.supplier.controllers;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.sole.saas.common.models.Response;
+import com.sole.saas.common.models.response.UserResponse;
+import com.sole.saas.common.utils.ContextUtil;
 import com.sole.saas.supplier.models.request.IndustryQualificationRequest;
 import com.sole.saas.supplier.models.response.IndustryQualificationResponse;
 import com.sole.saas.supplier.services.IIndustryQualificationService;
-import com.sole.saas.supplier.utils.ContextUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
@@ -22,11 +23,9 @@ public class IndustryQualificationController {
 
     private final IIndustryQualificationService iIndustryQualificationService;
 
-    private final ContextUtil contextUtil;
 
-    public IndustryQualificationController(IIndustryQualificationService iIndustryQualificationService, ContextUtil contextUtil) {
+    public IndustryQualificationController(IIndustryQualificationService iIndustryQualificationService) {
         this.iIndustryQualificationService = iIndustryQualificationService;
-        this.contextUtil = contextUtil;
     }
 
     @ApiOperation(value = "新增行业资质信息")
@@ -53,16 +52,16 @@ public class IndustryQualificationController {
     @ApiOperation(value = "行业资质信息审批通过")
     @GetMapping("/checkApproval")
     public Response checkApproval(@RequestParam Long id) {
-        final Long currentUserId = contextUtil.getCurrentUserId();
-        iIndustryQualificationService.checkApproval(id, currentUserId);
+        final UserResponse currentUser = ContextUtil.getCurrentUser();
+        iIndustryQualificationService.checkApproval(id, Long.valueOf(currentUser.getId()));
         return new Response<>();
     }
 
     @ApiOperation(value = "行业资质信息审批驳回")
     @GetMapping("/checkReject")
     public Response checkReject(@RequestParam Long id, @RequestParam String reason) {
-        final Long currentUserId = contextUtil.getCurrentUserId();
-        iIndustryQualificationService.checkReject(id, reason, currentUserId);
+        final UserResponse currentUser = ContextUtil.getCurrentUser();
+        iIndustryQualificationService.checkReject(id, reason, Long.valueOf(currentUser.getId()));
         return new Response<>();
     }
 

@@ -55,7 +55,7 @@ dependencies {
     }
     testImplementation 'io.projectreactor:reactor-test'
 
-    implementation 'com.sole.saas:common-service:0.0.176'
+    implementation 'com.sole.saas:common-service:0.0.184'
     implementation 'commons-beanutils:commons-beanutils:1.8.0'
 
     implementation 'com.alibaba:easyexcel:2.1.6'

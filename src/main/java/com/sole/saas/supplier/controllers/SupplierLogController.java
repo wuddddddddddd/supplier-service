@@ -2,13 +2,14 @@ package com.sole.saas.supplier.controllers;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.sole.saas.common.models.Response;
+import com.sole.saas.common.models.response.UserResponse;
+import com.sole.saas.common.utils.ContextUtil;
 import com.sole.saas.supplier.models.request.InitSupplierRequest;
 import com.sole.saas.supplier.models.request.SupplierPageRequest;
 import com.sole.saas.supplier.models.request.SupplierRequest;
 import com.sole.saas.supplier.models.response.SupplierPageResponse;
 import com.sole.saas.supplier.models.response.SupplierResponse;
 import com.sole.saas.supplier.services.ISupplierLogService;
-import com.sole.saas.supplier.utils.ContextUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
@@ -25,18 +26,16 @@ public class SupplierLogController {
 
     private final ISupplierLogService supplierLogService;
 
-    private final ContextUtil contextUtil;
 
-    public SupplierLogController(ISupplierLogService supplierLogService, ContextUtil contextUtil) {
+    public SupplierLogController(ISupplierLogService supplierLogService) {
         this.supplierLogService = supplierLogService;
-        this.contextUtil = contextUtil;
     }
 
     @ApiOperation(value = "初始化创建简要供应商")
     @PostMapping("/initCreateSupplier")
     public Response initCreateSupplier(@RequestBody InitSupplierRequest request) {
-        final Long currentUserId = contextUtil.getCurrentUserId();
-        request.setBuyerUserId(currentUserId);
+        final UserResponse currentUser = ContextUtil.getCurrentUser();
+        request.setBuyerUserId(Long.valueOf(currentUser.getId()));
         supplierLogService.initCreateSupplier(request);
         return new Response<>();
     }
@@ -44,8 +43,8 @@ public class SupplierLogController {
     @ApiOperation(value = "完善供应商信息")
     @PostMapping("/addSupplier")
     public Response addSupplier(@RequestBody SupplierRequest request) {
-        final Long currentUserId = contextUtil.getCurrentUserId();
-        request.setSupplierId(currentUserId);
+        final UserResponse currentUser = ContextUtil.getCurrentUser();
+        request.setSupplierId(Long.valueOf(currentUser.getId()));
         supplierLogService.addSupplier(request, false);
         return new Response<>();
     }
@@ -53,8 +52,8 @@ public class SupplierLogController {
     @ApiOperation(value = "完善供应商信息")
     @PostMapping("/addSupplierDraft")
     public Response addSupplierDraft(@RequestBody SupplierRequest request) {
-        final Long currentUserId = contextUtil.getCurrentUserId();
-        request.setSupplierId(currentUserId);
+        final UserResponse currentUser = ContextUtil.getCurrentUser();
+        request.setSupplierId(Long.valueOf(currentUser.getId()));
         supplierLogService.addSupplier(request, true);
         return new Response<>();
     }
@@ -79,16 +78,16 @@ public class SupplierLogController {
     @ApiOperation(value = "供应商审批通过")
     @GetMapping("/checkApproval")
     public Response checkApproval(@RequestParam Long supplierId) {
-        final Long currentUserId = contextUtil.getCurrentUserId();
-        supplierLogService.checkApproval(supplierId, currentUserId);
+        final UserResponse currentUser = ContextUtil.getCurrentUser();
+        supplierLogService.checkApproval(supplierId, Long.valueOf(currentUser.getId()));
         return new Response<>();
     }
 
     @ApiOperation(value = "供应商审批驳回")
     @GetMapping("/checkReject")
     public Response checkReject(@RequestParam Long supplierId, @RequestParam String reason) {
-        final Long currentUserId = contextUtil.getCurrentUserId();
-        supplierLogService.checkReject(supplierId, reason, currentUserId);
+        final UserResponse currentUser = ContextUtil.getCurrentUser();
+        supplierLogService.checkReject(supplierId, reason, Long.valueOf(currentUser.getId()));
         return new Response<>();
     }
 
