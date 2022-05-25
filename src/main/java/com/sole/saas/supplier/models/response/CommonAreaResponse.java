@@ -26,7 +26,7 @@ public class CommonAreaResponse implements Serializable {
 
 
     @ApiModelProperty(value = "主键ID")
-    private Integer areaId;
+    private Long areaId;
 
     @ApiModelProperty(value = "地区名称")
     private String areaName;

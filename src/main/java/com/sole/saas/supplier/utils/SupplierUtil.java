@@ -40,8 +40,7 @@ public class SupplierUtil {
       * @description 供应商信息&供应商记录信息通用信息组装.
       * @author wjd
       * @date 2022/5/25
-      * @param
-      * @return void
+      * @param list 待组装的信息
       */
     public void getSupplierPageInfo(List<SupplierPageResponse> list) {
         logger.info("[供应商信息组装]");
@@ -81,7 +80,7 @@ public class SupplierUtil {
         }
 
         // 区域信息
-        Map<Integer, CommonAreaResponse> areaMap = new HashMap<>();
+        Map<Long, CommonAreaResponse> areaMap = new HashMap<>();
         if (CollectionUtil.isNotEmpty(areaIdSet)) {
             final List<CommonAreaResponse> areaList = orgUtil.getAreaByIdList(new ArrayList<>(areaIdSet));
             if (CollectionUtil.isNotEmpty(areaList)) {
