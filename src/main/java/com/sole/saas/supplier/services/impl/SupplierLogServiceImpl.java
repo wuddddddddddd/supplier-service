@@ -18,7 +18,6 @@ import com.sole.saas.supplier.models.request.*;
 import com.sole.saas.supplier.models.response.*;
 import com.sole.saas.supplier.repositorys.*;
 import com.sole.saas.supplier.services.ISupplierLogService;
-import com.sole.saas.supplier.utils.OrgUtil;
 import com.sole.saas.supplier.utils.SupplierUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,8 +65,6 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
 
     private final SupplierUtil supplierUtil;
 
-    private final OrgUtil orgUtil;
-
     public SupplierLogServiceImpl(ISupplierBasicInfoRepository supplierBasicInfoRepository, IQualificationInfoRepository qualificationInfoRepository,
                                   ISupplierIndustryRepository supplierIndustryRepository, IRegisterInfoRepository registerInfoRepository,
                                   ISupplierUserInfoRepository supplierUserInfoRepository, ISupplierBuyerUserRepository supplierBuyerUserRepository,
@@ -75,7 +72,7 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
                                   ISupplierIndustryLogRepository supplierIndustryLogRepository, IRegisterInfoLogRepository registerInfoLogRepository,
                                   ISupplierUserInfoLogRepository supplierUserInfoLogRepository, ISupplierBuyerUserLogRepository supplierBuyerUserLogRepository,
                                   ICheckOpinionRepository checkOpinionRepository, RedisUtils redisUtils,
-                                  SupplierUtil supplierUtil, OrgUtil orgUtil) {
+                                  SupplierUtil supplierUtil) {
         this.supplierBasicInfoRepository = supplierBasicInfoRepository;
         this.qualificationInfoRepository = qualificationInfoRepository;
         this.supplierIndustryRepository = supplierIndustryRepository;
@@ -91,7 +88,6 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         this.checkOpinionRepository = checkOpinionRepository;
         this.redisUtils = redisUtils;
         this.supplierUtil = supplierUtil;
-        this.orgUtil = orgUtil;
     }
 
 
@@ -316,7 +312,7 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
                 .errorMessage(null, "根据供应商ID{}未获取到记录信息", supplierId);
         final SupplierBasicInfoPo basicInfoPo = SupplierBasicInfoCvt.INSTANCE.logPoToPo(basicInfoLogPo);
         basicInfoPo.setId(supplierId);
-        supplierBasicInfoRepository.save(basicInfoPo);
+        supplierBasicInfoRepository.updateById(basicInfoPo);
 
         // 主营行业信息更新
         supplierIndustryRepository.updateByOneParams(SupplierIndustryPo::getStatus, Constant.STATUS_DEL,
