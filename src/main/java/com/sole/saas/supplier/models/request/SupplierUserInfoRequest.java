@@ -1,5 +1,6 @@
 package com.sole.saas.supplier.models.request;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -46,16 +47,18 @@ public class SupplierUserInfoRequest implements Serializable {
     private String remark;
 
     @ApiModelProperty(value = "创建人")
-    private Date createUserId;
+    private Long createUserId;
 
     @ApiModelProperty(value = "创建时间")
-    private String createTime;
+    @JSONField(format="yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
 
     @ApiModelProperty(value = "修改人")
-    private Date updateUserId;
+    private Long updateUserId;
 
     @ApiModelProperty(value = "修改时间")
-    private String updateTime;
+    @JSONField(format="yyyy-MM-dd HH:mm:ss")
+    private Date updateTime;
 
     @ApiModelProperty(value = "状态")
     private Integer status;

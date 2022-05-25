@@ -3,6 +3,7 @@ package com.sole.saas.supplier.models.request;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.ToString;
 
 import java.io.Serializable;
 
@@ -13,6 +14,7 @@ import java.io.Serializable;
  */
 @ApiModel(value="初始化创建供应商请求体")
 @Data
+@ToString
 public class InitSupplierRequest implements Serializable {
     private static final long serialVersionUID = -6586896197277884368L;
 
@@ -34,4 +36,7 @@ public class InitSupplierRequest implements Serializable {
 
     @ApiModelProperty(value = "所属采购员ID")
     private Long buyerUserId;
+
+    @ApiModelProperty(value = "信息来源")
+    private Integer source;
 }

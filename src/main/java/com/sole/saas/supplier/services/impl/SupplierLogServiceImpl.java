@@ -94,11 +94,12 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void initCreateSupplier(InitSupplierRequest request) {
-        logger.info("[初始化创建简要供应商]---供应商名称为{}", request.getSupplierName());
+        logger.info("[初始化创建简要供应商]---供应商信息为{}", request.toString());
         // 添加供应商信息并标识为创建中状态
         SupplierBasicInfoPo basicInfoPo = new SupplierBasicInfoPo();
         basicInfoPo.setName(request.getSupplierName());
         basicInfoPo.setBusinessStatus(BusinessStatusEnum.CREATE_ING.getCode());
+        basicInfoPo.setSource(request.getSource());
         supplierBasicInfoRepository.save(basicInfoPo);
         final Long supplierId = basicInfoPo.getId();
         // 保存日志信息

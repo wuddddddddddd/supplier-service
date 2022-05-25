@@ -1,5 +1,6 @@
 package com.sole.saas.supplier.models.po;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -8,6 +9,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.Date;
 
 /**
  * @author wjd
@@ -49,17 +52,19 @@ public class SupplierUserInfoPo extends Model<SupplierUserInfoPo> {
     private String remark;
 
     @ApiModelProperty(value = "创建人")
-    private String createUserId;
+    private Long createUserId;
 
     @ApiModelProperty(value = "创建时间")
-    private String createTime;
+    @JSONField(format="yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
 
     @ApiModelProperty(value = "修改人")
-    private String updateUserId;
+    private Long updateUserId;
 
     @ApiModelProperty(value = "修改时间")
-    private String updateTime;
+    @JSONField(format="yyyy-MM-dd HH:mm:ss")
+    private Date updateTime;
 
     @ApiModelProperty(value = "状态")
-    private String status;
+    private Integer status;
 }

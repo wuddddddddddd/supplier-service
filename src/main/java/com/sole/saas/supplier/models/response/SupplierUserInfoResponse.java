@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @author wjd
@@ -44,17 +45,17 @@ public class SupplierUserInfoResponse implements Serializable {
     private String remark;
 
     @ApiModelProperty(value = "创建人")
-    private String createUserId;
+    private Long createUserId;
 
     @ApiModelProperty(value = "创建时间")
-    private String createTime;
+    private Date createTime;
 
     @ApiModelProperty(value = "修改人")
-    private String updateUserId;
+    private Long updateUserId;
 
     @ApiModelProperty(value = "修改时间")
-    private String updateTime;
+    private Date updateTime;
 
     @ApiModelProperty(value = "状态")
-    private String status;
+    private Integer status;
 }

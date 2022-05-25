@@ -43,5 +43,26 @@
                 LEFT JOIN supplier_buyer_user_log bu ON bi.supplier_id = bu.supplier_id
         WHERE
             bi.STATUS = 0
+            <if test="qo.businessStatusList!= null and qo.businessStatusList.size()>0" >
+                AND bi.business_status IN
+                <foreach collection="qo.businessStatusList" item="item" open="(" close=")" separator="," >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="qo.businessStatus != null and qo.businessStatus != ''">
+                AND bi.business_status = #{qo.businessStatus}
+            </if>
+            <if test="qo.supplierName != null and qo.supplierName != ''">
+                AND bi.name LIKE CONCAT( '%', #{qo.supplierName}, '%' )
+            </if>
+            <if test="qo.source != null and qo.source != ''">
+                AND bi.source = #{qo.source}
+            </if>
+            <if test="qo.userName != null and qo.userName != ''">
+                AND ui.name LIKE CONCAT( '%', #{qo.userName}, '%' )
+            </if>
+            <if test="qo.userTelephone != null and qo.userTelephone != ''">
+                AND ui.telephone = #{qo.userTelephone}
+            </if>
     </select>
 </mapper>
