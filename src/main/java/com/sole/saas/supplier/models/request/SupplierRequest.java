@@ -1,5 +1,6 @@
 package com.sole.saas.supplier.models.request;
 
+import com.sole.saas.supplier.models.po.SupplierIndustryLogPo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -34,8 +35,8 @@ public class SupplierRequest implements Serializable {
     private SupplierUserInfoRequest supplierUserInfoRequest;
 
     @ApiModelProperty(value = "所属采购员信息")
-    private SupplierBuyerUserRequest supplierBuyerUserRequest;
+    private SupplierBuyerUserRequest supplierBuyerUserRequest = new SupplierBuyerUserRequest();
 
     @ApiModelProperty(value = "主营行业")
-    private List<Long> industryList = new ArrayList<>();
+    private List<SupplierIndustryRequest> industryRequestList = new ArrayList<>();
 }

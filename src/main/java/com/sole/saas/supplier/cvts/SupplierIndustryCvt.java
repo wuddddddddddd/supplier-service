@@ -2,6 +2,7 @@ package com.sole.saas.supplier.cvts;
 
 import com.sole.saas.supplier.models.po.SupplierIndustryLogPo;
 import com.sole.saas.supplier.models.po.SupplierIndustryPo;
+import com.sole.saas.supplier.models.request.SupplierIndustryRequest;
 import com.sole.saas.supplier.models.response.SupplierIndustryResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -44,4 +45,13 @@ public interface SupplierIndustryCvt {
      * @return 转换后的po实体集
      */
     List<SupplierIndustryPo> logPoToPoBatch(List<SupplierIndustryLogPo> logPoList);
+
+    /**
+      * @description request实体集转换成logPo实体集.
+      * @author wjd
+      * @date 2022/5/25
+      * @param list 待转换的request实体集
+      * @return 转换后的logPo实体集
+      */
+    List<SupplierIndustryLogPo> requestToLogPoBatch(List<SupplierIndustryRequest> list);
 }

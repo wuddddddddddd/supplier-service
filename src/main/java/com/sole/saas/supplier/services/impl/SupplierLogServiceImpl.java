@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -152,7 +151,6 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         // 保存新信息
         final SupplierBasicInfoRequest basicInfoRequest = request.getBasicInfoRequest();
         final SupplierBasicInfoLogPo basicInfoLogPo = SupplierBasicInfoCvt.INSTANCE.requestToLogPo(basicInfoRequest);
-        basicInfoLogPo.setId(null);
         basicInfoLogPo.setSupplierId(supplierId);
         basicInfoLogPo.setBusinessStatus(isDraft ? BusinessStatusEnum.DRAFT.getCode() : BusinessStatusEnum.IN_PROCESS.getCode());
         if (!isDraft && StrUtil.isBlank(basicInfoLogPo.getCode())) {
@@ -167,16 +165,13 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         // 主营行业信息更新
         supplierIndustryLogRepository.updateByOneParams(SupplierIndustryLogPo::getStatus, Constant.STATUS_DEL,
                 SupplierIndustryLogPo::getSupplierId, supplierId);
-        final List<Long> industryList = request.getIndustryList();
-        if (CollectionUtil.isNotEmpty(industryList)) {
-            List<SupplierIndustryLogPo> supplierIndustryLogPoList = new ArrayList<>();
-            for (Long industryId : industryList) {
-                SupplierIndustryLogPo industryLogPo = new SupplierIndustryLogPo();
-                industryLogPo.setSupplierId(supplierId);
-                industryLogPo.setIndustryId(industryId);
-                supplierIndustryLogPoList.add(industryLogPo);
-            }
-            supplierIndustryLogRepository.saveBatch(supplierIndustryLogPoList);
+        final List<SupplierIndustryRequest> industryRequestList = request.getIndustryRequestList();
+        final List<SupplierIndustryLogPo> industryLogPoList = SupplierIndustryCvt.INSTANCE.requestToLogPoBatch(industryRequestList);
+        if (CollectionUtil.isNotEmpty(industryLogPoList)) {
+            industryLogPoList.forEach(industry ->{
+                industry.setSupplierId(supplierId);
+            });
+            supplierIndustryLogRepository.saveBatch(industryLogPoList);
         }
 
         // 供应商资质信息更新
@@ -184,7 +179,6 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
                 QualificationInfoLogPo::getSupplierId, supplierId);
         final QualificationInfoRequest qualificationInfoRequest = request.getQualificationInfoRequest();
         final QualificationInfoLogPo qualificationInfoLogPo = QualificationInfoCvt.INSTANCE.requestToLog(qualificationInfoRequest);
-        qualificationInfoLogPo.setId(null);
         qualificationInfoLogPo.setSupplierId(supplierId);
         qualificationInfoLogRepository.save(qualificationInfoLogPo);
 
@@ -193,16 +187,14 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
                 RegisterInfoLogPo::getSupplierId, supplierId);
         final RegisterInfoRequest registerInfoRequest = request.getRegisterInfoRequest();
         final RegisterInfoLogPo registerInfoLogPo = RegisterInfoCvt.INSTANCE.requestToLogPo(registerInfoRequest);
-        registerInfoLogPo.setId(null);
         registerInfoLogPo.setSupplierId(supplierId);
         registerInfoLogRepository.save(registerInfoLogPo);
 
         // 供应商联系人信息更新
-        supplierUserInfoLogRepository.updateByOneParams(SupplierUserInfoLogPo::getSupplierId, Constant.STATUS_DEL,
+        supplierUserInfoLogRepository.updateByOneParams(SupplierUserInfoLogPo::getStatus, Constant.STATUS_DEL,
                 SupplierUserInfoLogPo::getSupplierId, supplierId);
         final SupplierUserInfoRequest supplierUserInfoRequest = request.getSupplierUserInfoRequest();
         final SupplierUserInfoLogPo supplierUserInfoLogPo = SupplierUserInfoCvt.INSTANCE.requestToLogPo(supplierUserInfoRequest);
-        supplierUserInfoLogPo.setId(null);
         supplierUserInfoLogPo.setSupplierId(supplierId);
         supplierUserInfoLogRepository.save(supplierUserInfoLogPo);
 
