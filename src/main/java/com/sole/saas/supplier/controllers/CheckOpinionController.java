@@ -42,8 +42,8 @@ public class CheckOpinionController {
     }
 
     @ApiOperation(value = "根据自定义条件查询结果集带分页")
-    @GetMapping("/getOpinionList")
-    public Response getOpinionList(@RequestParam(required = false) Integer type,
+    @GetMapping("/getPageInfo")
+    public Response getPageInfo(@RequestParam(required = false) Integer type,
                                    @RequestParam(required = false) Long businessId,
                                    @RequestParam Integer pageIndex, @RequestParam Integer pageSize) {
         CheckOpinionRequest request = new CheckOpinionRequest();

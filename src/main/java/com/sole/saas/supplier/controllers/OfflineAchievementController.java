@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @Api(value="线下业绩信息信息控制层")
 @RestController
-@RequestMapping("/industryQualification")
+@RequestMapping("/offlineAchievement")
 public class OfflineAchievementController {
 
     private final IOfflineAchievementService offlineAchievementService;
