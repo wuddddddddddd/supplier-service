@@ -90,4 +90,19 @@ public class SupplierPageResponse implements Serializable {
     @ApiModelProperty(value = "经营类型对应业务字典ID")
     private String manageTypeName;
 
+    @ApiModelProperty(value = "注册地区(省)名称")
+    private String provinceName;
+
+    @ApiModelProperty(value = "注册地区(市)名称")
+    private String cityName;
+
+    @ApiModelProperty(value = "注册地区ID(区)名称")
+    private String districtName;
+
+    @ApiModelProperty(value = "所属采购员名称")
+    private String buyerUserName;
+
+    @ApiModelProperty(value = "原所属采购员名称")
+    private String oldBuyerUserName;
+
 }

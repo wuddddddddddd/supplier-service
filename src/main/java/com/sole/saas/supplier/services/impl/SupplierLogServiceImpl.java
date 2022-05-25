@@ -1,7 +1,8 @@
 package com.sole.saas.supplier.services.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -17,6 +18,7 @@ import com.sole.saas.supplier.models.request.*;
 import com.sole.saas.supplier.models.response.*;
 import com.sole.saas.supplier.repositorys.*;
 import com.sole.saas.supplier.services.ISupplierLogService;
+import com.sole.saas.supplier.utils.OrgUtil;
 import com.sole.saas.supplier.utils.SupplierUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +66,8 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
 
     private final SupplierUtil supplierUtil;
 
+    private final OrgUtil orgUtil;
+
     public SupplierLogServiceImpl(ISupplierBasicInfoRepository supplierBasicInfoRepository, IQualificationInfoRepository qualificationInfoRepository,
                                   ISupplierIndustryRepository supplierIndustryRepository, IRegisterInfoRepository registerInfoRepository,
                                   ISupplierUserInfoRepository supplierUserInfoRepository, ISupplierBuyerUserRepository supplierBuyerUserRepository,
@@ -71,7 +75,7 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
                                   ISupplierIndustryLogRepository supplierIndustryLogRepository, IRegisterInfoLogRepository registerInfoLogRepository,
                                   ISupplierUserInfoLogRepository supplierUserInfoLogRepository, ISupplierBuyerUserLogRepository supplierBuyerUserLogRepository,
                                   ICheckOpinionRepository checkOpinionRepository, RedisUtils redisUtils,
-                                  SupplierUtil supplierUtil) {
+                                  SupplierUtil supplierUtil, OrgUtil orgUtil) {
         this.supplierBasicInfoRepository = supplierBasicInfoRepository;
         this.qualificationInfoRepository = qualificationInfoRepository;
         this.supplierIndustryRepository = supplierIndustryRepository;
@@ -87,6 +91,7 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         this.checkOpinionRepository = checkOpinionRepository;
         this.redisUtils = redisUtils;
         this.supplierUtil = supplierUtil;
+        this.orgUtil = orgUtil;
     }
 
 
@@ -155,9 +160,10 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         basicInfoLogPo.setBusinessStatus(isDraft ? BusinessStatusEnum.DRAFT.getCode() : BusinessStatusEnum.IN_PROCESS.getCode());
         if (!isDraft && StrUtil.isBlank(basicInfoLogPo.getCode())) {
             // 供应商编码: GYS+创建年月日+6位随机数字
+            final String today = DatePattern.PURE_DATE_FORMAT.format(new DateTime());
             final long code = redisUtils.incr("SUPPLIER_CODE", 1);
             String format = String.format("%06d", code);
-            String supplierCode = SupplierConstant.SUPPLIER_CODE_KEY + DateUtil.today() + format;
+            String supplierCode = SupplierConstant.SUPPLIER_CODE_PREFIX + today + format;
             basicInfoLogPo.setCode(supplierCode);
         }
         supplierBasicInfoLogRepository.save(basicInfoLogPo);
@@ -288,6 +294,7 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         // 分页信息组装
         final List<SupplierPageResponse> list = pageResponse.getRecords();
         supplierUtil.getSupplierPageInfo(list);
+
         return pageResponse;
     }
 
