@@ -126,7 +126,7 @@ public class SupplierServiceImpl implements ISupplierInfoService {
         }
         // 分页信息组装
         final List<SupplierPageResponse> list = pageResponse.getRecords();
-        supplierUtil.getSupplierPageInfo(list);
+        supplierUtil.getSupplierPageInfo(list, false);
         return pageResponse;
     }
 

@@ -42,8 +42,8 @@
                 LEFT JOIN supplier_register_info_log ri ON bi.supplier_id = ri.supplier_id
                 LEFT JOIN supplier_buyer_user_log bu ON bi.supplier_id = bu.supplier_id
         WHERE
-            bi.STATUS = 0
-            <if test="qo.businessStatusList!= null and qo.businessStatusList.size()>0" >
+            bi.`status` = 0 AND qi.`status` = 0 AND ui.`status` = 0 AND ri.`status` = 0 AND bu.`status` = 0
+        <if test="qo.businessStatusList!= null and qo.businessStatusList.size()>0" >
                 AND bi.business_status IN
                 <foreach collection="qo.businessStatusList" item="item" open="(" close=")" separator="," >
                     #{item}

@@ -24,7 +24,7 @@ public class SupplierPageResponse implements Serializable {
     private Long id;
 
     @ApiModelProperty(value = "供应商编码")
-    private String supplierId;
+    private Long supplierId;
 
     @ApiModelProperty(value = "供应商编码")
     private String supplierCode;
@@ -104,5 +104,8 @@ public class SupplierPageResponse implements Serializable {
 
     @ApiModelProperty(value = "原所属采购员名称")
     private String oldBuyerUserName;
+
+    @ApiModelProperty(value = "主营行业名称拼接")
+    private String industryNames;
 
 }

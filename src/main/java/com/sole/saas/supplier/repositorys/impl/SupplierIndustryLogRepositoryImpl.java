@@ -1,5 +1,6 @@
 package com.sole.saas.supplier.repositorys.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
@@ -52,6 +53,9 @@ public class SupplierIndustryLogRepositoryImpl extends ServiceImpl<SupplierIndus
 
     public List<SupplierIndustryLogPo> getListByParams(SupplierIndustryRequest request) {
         final LambdaQueryWrapper<SupplierIndustryLogPo> queryWrapper = this.getQueryWrapper(request);
+        if (CollectionUtil.isNotEmpty(request.getSupplierIdList())) {
+            queryWrapper.in(SupplierIndustryLogPo::getSupplierId, request.getSupplierIdList());
+        }
         return supplierIndustryLogMapper.selectList(queryWrapper);
     }
 

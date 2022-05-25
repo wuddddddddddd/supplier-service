@@ -174,9 +174,7 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         final List<SupplierIndustryRequest> industryRequestList = request.getIndustryRequestList();
         final List<SupplierIndustryLogPo> industryLogPoList = SupplierIndustryCvt.INSTANCE.requestToLogPoBatch(industryRequestList);
         if (CollectionUtil.isNotEmpty(industryLogPoList)) {
-            industryLogPoList.forEach(industry ->{
-                industry.setSupplierId(supplierId);
-            });
+            industryLogPoList.forEach(industry -> industry.setSupplierId(supplierId));
             supplierIndustryLogRepository.saveBatch(industryLogPoList);
         }
 
@@ -209,6 +207,7 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
                 SupplierBuyerUserLogPo::getSupplierId, supplierId);
         final SupplierBuyerUserRequest supplierBuyerUserRequest = request.getSupplierBuyerUserRequest();
         final SupplierBuyerUserLogPo supplierBuyerUserLogPo = SupplierBuyerUserCvt.INSTANCE.requestToLogPo(supplierBuyerUserRequest);
+        supplierBuyerUserLogPo.setSupplierId(supplierId);
         supplierBuyerUserLogRepository.save(supplierBuyerUserLogPo);
     }
 
@@ -293,8 +292,8 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         }
         // 分页信息组装
         final List<SupplierPageResponse> list = pageResponse.getRecords();
-        supplierUtil.getSupplierPageInfo(list);
-
+        // 公共信息组装
+        supplierUtil.getSupplierPageInfo(list, true);
         return pageResponse;
     }
 

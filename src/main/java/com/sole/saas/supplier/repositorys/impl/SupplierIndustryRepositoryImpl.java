@@ -58,6 +58,9 @@ public class SupplierIndustryRepositoryImpl extends ServiceImpl<SupplierIndustry
     @Override
     public List<SupplierIndustryPo> getListByParams(SupplierIndustryRequest request) {
         final LambdaQueryWrapper<SupplierIndustryPo> queryWrapper = this.getQueryWrapper(request);
+        if (CollectionUtil.isNotEmpty(request.getSupplierIdList())) {
+            queryWrapper.in(SupplierIndustryPo::getSupplierId, request.getSupplierIdList());
+        }
         return supplierIndustryMapper.selectList(queryWrapper);
     }
 

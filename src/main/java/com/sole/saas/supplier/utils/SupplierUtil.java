@@ -1,12 +1,21 @@
 package com.sole.saas.supplier.utils;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
+import com.sole.saas.common.constant.Constant;
+import com.sole.saas.supplier.cvts.SupplierIndustryCvt;
 import com.sole.saas.supplier.models.po.DictInfoPo;
+import com.sole.saas.supplier.models.po.SupplierIndustryLogPo;
+import com.sole.saas.supplier.models.po.SupplierIndustryPo;
 import com.sole.saas.supplier.models.request.DictInfoRequest;
+import com.sole.saas.supplier.models.request.SupplierIndustryRequest;
 import com.sole.saas.supplier.models.response.CommonAreaResponse;
+import com.sole.saas.supplier.models.response.SupplierIndustryResponse;
 import com.sole.saas.supplier.models.response.SupplierPageResponse;
 import com.sole.saas.supplier.models.response.UserResponse;
 import com.sole.saas.supplier.repositorys.IDictInfoRepository;
+import com.sole.saas.supplier.repositorys.ISupplierIndustryLogRepository;
+import com.sole.saas.supplier.repositorys.ISupplierIndustryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -29,11 +38,17 @@ public class SupplierUtil {
 
     private final UserUtil userUtil;
 
-    public SupplierUtil(IDictInfoRepository dictInfoRepository, OrgUtil orgUtil,
-                        UserUtil userUtil) {
+    private final ISupplierIndustryLogRepository supplierIndustryLogRepository;
+
+    private final ISupplierIndustryRepository supplierIndustryRepository;
+
+    public SupplierUtil(IDictInfoRepository dictInfoRepository, OrgUtil orgUtil, UserUtil userUtil,
+                        ISupplierIndustryLogRepository supplierIndustryLogRepository, ISupplierIndustryRepository supplierIndustryRepository) {
         this.dictInfoRepository = dictInfoRepository;
         this.orgUtil = orgUtil;
         this.userUtil = userUtil;
+        this.supplierIndustryLogRepository = supplierIndustryLogRepository;
+        this.supplierIndustryRepository = supplierIndustryRepository;
     }
 
     /**
@@ -42,7 +57,7 @@ public class SupplierUtil {
       * @date 2022/5/25
       * @param list 待组装的信息
       */
-    public void getSupplierPageInfo(List<SupplierPageResponse> list) {
+    public void getSupplierPageInfo(List<SupplierPageResponse> list, boolean isLog) {
         logger.info("[供应商信息组装]");
         // 经营类型ID集
         Set<Long> manageTypeIdSet = new HashSet<>();
@@ -50,7 +65,8 @@ public class SupplierUtil {
         Set<Long> areaIdSet = new HashSet<>();
         // 采购员ID集
         Set<Integer> userIdSet = new HashSet<>();
-
+        // 供应商ID集
+        Set<Long> supplierIdSet = new HashSet<>();
         for (SupplierPageResponse response : list) {
             manageTypeIdSet.add(response.getManageTypeId());
 
@@ -67,12 +83,15 @@ public class SupplierUtil {
                 userIdSet.add(userId);
             }
 
+            supplierIdSet.add(response.getSupplierId());
+
         }
         // 经营类型<经营类型ID, 业务字典集>
         Map<Long, DictInfoPo> dictMap = new HashMap<>();
         if (CollectionUtil.isNotEmpty(manageTypeIdSet)) {
             DictInfoRequest dictInfoRequest = new DictInfoRequest();
             dictInfoRequest.setIdList(new ArrayList<>(manageTypeIdSet));
+            dictInfoRequest.setStatus(Constant.STATUS_NOT_DEL);
             final List<DictInfoPo> dictInfoPoList = dictInfoRepository.getListByParams(dictInfoRequest);
             if (CollectionUtil.isNotEmpty(dictInfoPoList)) {
                 dictMap = dictInfoPoList.stream().collect(Collectors.toMap(DictInfoPo::getId, e -> e, (k1, k2) -> k1));
@@ -96,6 +115,17 @@ public class SupplierUtil {
                 userMap = userList.stream().collect(Collectors.toMap(UserResponse::getId, e -> e, (k1, k2) -> k1));
             }
         }
+
+        // 主营行业信息
+        Map<Long, List<SupplierIndustryResponse>> industryMap = new HashMap<>();
+        if (CollectionUtil.isNotEmpty(supplierIdSet)) {
+            if (isLog) {
+                industryMap = this.getIndustryLogMap(supplierIdSet);
+            } else {
+                industryMap = this.getIndustryMap(supplierIdSet);
+            }
+        }
+
 
         // 组装数据
         for (SupplierPageResponse response : list) {
@@ -136,6 +166,60 @@ public class SupplierUtil {
                 response.setOldBuyerUserName(userResponse.getName());
             }
 
+            // 主营行业
+            final Long supplierId = response.getSupplierId();
+            if (null != supplierId && industryMap.containsKey(supplierId)) {
+                final List<SupplierIndustryResponse> industryResponseList = industryMap.get(supplierId);
+                final List<String> industryNameList = industryResponseList.stream().map(SupplierIndustryResponse::getIndustryName).collect(Collectors.toList());
+                final String industryNames = StrUtil.join(",", industryNameList);
+                response.setIndustryNames(industryNames);
+            }
         }
+    }
+
+
+    /**
+      * @description 根据供应商ID集查询出供应商关联主营行业记录信息并以供应商ID分组.
+      * @author wjd
+      * @date 2022/5/25
+      * @param supplierIdSet 供应商ID集
+      * @return 供应商关联主营行业记录信息
+      */
+    private Map<Long, List<SupplierIndustryResponse>> getIndustryLogMap(Set<Long> supplierIdSet) {
+        Map<Long, List<SupplierIndustryResponse>> industryMap = new HashMap<>();
+
+        SupplierIndustryRequest request = new SupplierIndustryRequest();
+        request.setSupplierIdList(new ArrayList<>(supplierIdSet));
+        request.setStatus(Constant.STATUS_NOT_DEL);
+        final List<SupplierIndustryLogPo> industryLogPoList = supplierIndustryLogRepository.getListByParams(request);
+        if (CollectionUtil.isEmpty(industryLogPoList)) {
+            return industryMap;
+        }
+        final List<SupplierIndustryResponse> industryResponseList = SupplierIndustryCvt.INSTANCE.logPoToResponseBatch(industryLogPoList);
+        industryMap = industryResponseList.stream().collect(Collectors.groupingBy(SupplierIndustryResponse::getSupplierId));
+
+        return industryMap;
+    }
+
+    /**
+     * @description 根据供应商ID集查询出供应商关联主营行业信息并以供应商ID分组.
+     * @author wjd
+     * @date 2022/5/25
+     * @param supplierIdSet 供应商ID集
+     * @return 供应商关联主营行业信息
+     */
+    private Map<Long, List<SupplierIndustryResponse>> getIndustryMap(Set<Long> supplierIdSet) {
+        Map<Long, List<SupplierIndustryResponse>> industryMap = new HashMap<>();
+        SupplierIndustryRequest request = new SupplierIndustryRequest();
+        request.setSupplierIdList(new ArrayList<>(supplierIdSet));
+        request.setStatus(Constant.STATUS_NOT_DEL);
+        final List<SupplierIndustryPo> industryPoList = supplierIndustryRepository.getListByParams(request);
+        if (CollectionUtil.isEmpty(industryPoList)) {
+            return industryMap;
+        }
+        final List<SupplierIndustryResponse> industryResponseList = SupplierIndustryCvt.INSTANCE.poToResponseBatch(industryPoList);
+        industryMap = industryResponseList.stream().collect(Collectors.groupingBy(SupplierIndustryResponse::getSupplierId));
+
+        return industryMap;
     }
 }
