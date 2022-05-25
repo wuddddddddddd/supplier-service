@@ -18,7 +18,7 @@ import java.util.Date;
  * @description
  * @date 2022-05-16
  */
-@ApiModel(value="供应商基础信息数据库映射实体")
+@ApiModel(value="供应商公司注册信息数据库映射实体")
 @Data
 @EqualsAndHashCode(callSuper=false)
 @TableName("supplier_register_info")

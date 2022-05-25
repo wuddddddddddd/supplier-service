@@ -14,11 +14,11 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * @description: 供应商基础信息数据库映射实体.
+ * @description: 供应商基础信息记录数据库映射实体.
  * @Author wjd
  * @date 2022/5/9
  */
-@ApiModel(value="供应商基础信息数据库映射实体")
+@ApiModel(value="供应商基础信息记录数据库映射实体")
 @Data
 @EqualsAndHashCode(callSuper=false)
 @TableName("supplier_basic_info_log")

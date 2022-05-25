@@ -8,11 +8,17 @@ import java.util.List;
 
 /**
  * @author wjd
- * @description
+ * @description 业务字典信息数据仓储层接口.
  * @date 2022-05-17
  */
 public interface IDictInfoRepository extends IService<DictInfoPo> {
 
-
+    /**
+     * @description 根据自定义条件查询结果集.
+     * @author wjd
+     * @date 2022/5/25
+     * @param request 查询条件
+     * @return 业务字典信息集
+     */
     List<DictInfoPo> getListByParams(DictInfoRequest request);
 }

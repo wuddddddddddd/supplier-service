@@ -11,10 +11,10 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author wjd
- * @description 供应商联系人信息数据库映射实体.
+ * @description 供应商联系人记录信息数据库映射实体.
  * @date 2022-05-16
  */
-@ApiModel(value="供应商联系人信息数据库映射实体")
+@ApiModel(value="供应商联系人记录信息数据库映射实体")
 @Data
 @EqualsAndHashCode(callSuper=false)
 @TableName("supplier_user_info_log")

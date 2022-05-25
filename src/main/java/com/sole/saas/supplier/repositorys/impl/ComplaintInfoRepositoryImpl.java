@@ -50,11 +50,6 @@ public class ComplaintInfoRepositoryImpl extends ServiceImpl<ComplaintInfoMapper
         return complaintInfoMapper.update(null, updateWrapper);
     }
 
-    @Override
-    public int updateByParams(ComplaintInfoPo complaintInfoPo, ComplaintInfoRequest request) {
-        final LambdaQueryWrapper<ComplaintInfoPo> queryWrapper = this.getQueryWrapper(request);
-        return complaintInfoMapper.update(complaintInfoPo, queryWrapper);
-    }
 
     @Override
     public Page<ComplaintInfoPo> getPageByParams(Page<ComplaintInfoPo> page, ComplaintInfoRequest request) {

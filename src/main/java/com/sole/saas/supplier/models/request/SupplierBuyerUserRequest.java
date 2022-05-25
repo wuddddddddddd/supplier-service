@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * @author wjd
- * @description
+ * @description 供应商所属采购员信息数据库映射实体.
  * @date 2022-05-16
  */
 @ApiModel(value="供应商所属采购员信息数据库映射实体")

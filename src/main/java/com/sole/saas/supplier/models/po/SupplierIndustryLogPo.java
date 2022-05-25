@@ -14,10 +14,10 @@ import java.util.Date;
 
 /**
  * @author wjd
- * @description 供应商主营行业关联关系数据库映射实体.
+ * @description 供应商主营行业关联关系记录信息数据库映射实体.
  * @date 2022-05-19
  */
-@ApiModel(value="供应商主营行业关联关系数据库映射实体")
+@ApiModel(value="供应商主营行业关联关系记录信息数据库映射实体")
 @Data
 @EqualsAndHashCode(callSuper=false)
 @TableName("supplier_supplier_industry_log")

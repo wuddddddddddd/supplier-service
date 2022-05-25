@@ -42,14 +42,6 @@ public class SupplierDictRepositoryImpl extends ServiceImpl<SupplierDictMapper, 
     }
 
     @Override
-    public int updateOneByParams(SFunction<SupplierDictPo, ?> updateColumn, Object updateValue,
-                                 SupplierDictRequest request) {
-        final LambdaUpdateWrapper<SupplierDictPo> updateWrapper = this.getUpdateWrapper(request);
-        updateWrapper.set(updateColumn, updateValue);
-        return supplierDictMapper.update(null, updateWrapper);
-    }
-
-    @Override
     public List<SupplierDictPo> getListByParams(SupplierDictRequest request) {
         final LambdaQueryWrapper<SupplierDictPo> queryWrapper = this.getQueryWrapper(request);
         return supplierDictMapper.selectList(queryWrapper);
