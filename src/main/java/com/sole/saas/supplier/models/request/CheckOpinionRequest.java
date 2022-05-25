@@ -17,7 +17,7 @@ import java.util.Date;
 @ApiModel(value="供应商审批记录信息请求实体")
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class CheckOpinionRequest implements Serializable {
+public class CheckOpinionRequest extends BaseRequest implements Serializable {
     private static final long serialVersionUID = 7310578381504601700L;
 
     @ApiModelProperty(value = "主键ID")

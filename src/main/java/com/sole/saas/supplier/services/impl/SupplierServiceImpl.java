@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 /**
- * @description: TODO
+ * @description: 初始化创建供应商服务层实现.
  * @Author wjd
  * @date 2022/5/10
  */

@@ -1,6 +1,7 @@
 package com.sole.saas.supplier.repositorys.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sole.saas.common.aops.BaseData;
 import com.sole.saas.common.constant.OperatorType;
@@ -37,6 +38,12 @@ public class CheckOpinionRepositoryImpl extends ServiceImpl<CheckOpinionMapper, 
         final LambdaQueryWrapper<CheckOpinionPo> queryWrapper = this.getQueryWrapper(request);
         queryWrapper.orderByAsc(CheckOpinionPo::getCreateTime);
         return checkOpinionMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    public Page<CheckOpinionPo> getPageByParams(Page<CheckOpinionPo> page, CheckOpinionRequest request) {
+        final LambdaQueryWrapper<CheckOpinionPo> queryWrapper = this.getQueryWrapper(request);
+        return checkOpinionMapper.selectPage(page, queryWrapper);
     }
 
     /**

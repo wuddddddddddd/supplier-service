@@ -5,6 +5,9 @@ import com.sole.saas.supplier.models.po.DictInfoPo;
 import com.sole.saas.supplier.models.request.DictInfoRequest;
 import com.sole.saas.supplier.models.response.SupplierPageResponse;
 import com.sole.saas.supplier.repositorys.IDictInfoRepository;
+import com.sole.saas.supplier.services.impl.CheckOpinionServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -12,11 +15,12 @@ import java.util.stream.Collectors;
 
 /**
  * @author wjd
- * @description
+ * @description 供应商通用工具.
  * @date 2022-05-19
  */
 @Component
 public class SupplierUtil {
+    private static final Logger logger = LoggerFactory.getLogger(SupplierUtil.class);
 
     private final IDictInfoRepository dictInfoRepository;
 
@@ -24,7 +28,15 @@ public class SupplierUtil {
         this.dictInfoRepository = dictInfoRepository;
     }
 
+    /**
+      * @description 供应商信息&供应商记录信息通用信息组装.
+      * @author wjd
+      * @date 2022/5/25
+      * @param
+      * @return void
+      */
     public void getSupplierPageInfo(List<SupplierPageResponse> list) {
+        logger.info("[供应商信息组装]");
         // 经营类型ID集
         Set<Long> manageTypeIdSet = new HashSet<>();
         for (SupplierPageResponse response : list) {

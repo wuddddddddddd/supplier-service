@@ -1,5 +1,6 @@
 package com.sole.saas.supplier.repositorys;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sole.saas.supplier.models.po.CheckOpinionPo;
 import com.sole.saas.supplier.models.request.CheckOpinionRequest;
@@ -21,4 +22,14 @@ public interface ICheckOpinionRepository extends IService<CheckOpinionPo> {
       * @return 供应商审批记录信息集
       */
     List<CheckOpinionPo> getListByParams(CheckOpinionRequest request);
+
+    /**
+     * @description 根据自定义条件查询结果集带分页
+     * @author wjd
+     * @date 2022/5/25
+     * @param page 分页条件
+     * @param request 查询条件
+     * @return 供应商审批记录信息集结果集带分页
+     */
+    Page<CheckOpinionPo> getPageByParams(Page<CheckOpinionPo> page, CheckOpinionRequest request);
 }

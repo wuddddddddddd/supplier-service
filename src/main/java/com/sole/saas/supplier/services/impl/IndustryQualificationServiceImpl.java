@@ -22,7 +22,7 @@ import java.util.List;
 
 /**
  * @author wjd
- * @description
+ * @description 行业资质信息服务层实现.
  * @date 2022-05-21
  */
 @Service

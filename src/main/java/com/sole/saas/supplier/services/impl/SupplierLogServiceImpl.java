@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * @author wjd
- * @description
+ * @description 供应商记录信息服务层实现.
  * @date 2022-05-19
  */
 @Service

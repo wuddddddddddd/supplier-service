@@ -58,6 +58,13 @@ public class SupplierLogController {
         return new Response<>();
     }
 
+    @ApiOperation(value = "删除供应商")
+    @GetMapping("/delSupplier")
+    public Response delSupplier(@RequestParam Long supplierId) {
+        supplierLogService.delSupplier(supplierId);
+        return new Response<>();
+    }
+
     @ApiOperation(value = "获取供应商记录信息")
     @GetMapping("/getSupplierLogBySupplierId")
     public Response getSupplierLogBySupplierId(@RequestParam Long supplierId) {
