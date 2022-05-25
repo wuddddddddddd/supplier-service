@@ -18,7 +18,7 @@ import com.sole.saas.supplier.repositorys.ISupplierBasicInfoRepository;
 import org.springframework.stereotype.Repository;
 
 /**
- * @description: TODO
+ * @description: 供应商基础信息数据仓储层实现.
  * @Author wjd
  * @date 2022/5/10
  */

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
 
 /**
  * @author wjd
- * @description
+ * @description 供应商投诉信息数据仓储层实现.
  * @date 2022-05-23
  */
 @Repository

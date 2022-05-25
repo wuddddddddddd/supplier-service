@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * @author wjd
- * @description
+ * @description 供应商审批记录信息数据仓储层实现.
  * @date 2022-05-17
  */
 @Repository

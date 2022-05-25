@@ -8,14 +8,13 @@ import com.sole.saas.common.aops.BaseData;
 import com.sole.saas.common.constant.OperatorType;
 import com.sole.saas.supplier.mappers.QualificationInfoMapper;
 import com.sole.saas.supplier.models.po.QualificationInfoPo;
-import com.sole.saas.supplier.models.po.SupplierIndustryPo;
 import com.sole.saas.supplier.models.request.QualificationInfoRequest;
 import com.sole.saas.supplier.repositorys.IQualificationInfoRepository;
 import org.springframework.stereotype.Repository;
 
 /**
  * @author wjd
- * @description
+ * @description 供应商资质信息数据仓储层实现.
  * @date 2022-05-16
  */
 @Repository

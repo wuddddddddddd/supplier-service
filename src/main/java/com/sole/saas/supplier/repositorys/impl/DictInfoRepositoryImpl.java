@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * @author wjd
- * @description
+ * @description 业务字典信息数据仓储层实现.
  * @date 2022-05-17
  */
 @Repository

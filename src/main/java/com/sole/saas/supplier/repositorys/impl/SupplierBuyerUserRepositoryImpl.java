@@ -1,7 +1,6 @@
 package com.sole.saas.supplier.repositorys.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sole.saas.common.aops.BaseData;
 import com.sole.saas.common.constant.OperatorType;
@@ -16,7 +15,7 @@ import java.util.List;
 
 /**
  * @author wjd
- * @description
+ * @description 供应商所属采购员信息仓储层实现.
  * @date 2022-05-16
  */
 @Repository

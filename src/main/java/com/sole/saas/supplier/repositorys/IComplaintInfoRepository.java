@@ -8,7 +8,7 @@ import com.sole.saas.supplier.models.request.ComplaintInfoRequest;
 
 /**
  * @author wjd
- * @description 供应商投诉信息数据仓储层接口
+ * @description 供应商投诉信息数据仓储层接口.
  * @date 2022-05-23
  */
 public interface IComplaintInfoRepository extends IService<ComplaintInfoPo> {

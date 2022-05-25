@@ -1,6 +1,5 @@
 package com.sole.saas.supplier.repositorys.impl;
 
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Repository;
 
 /**
  * @author wjd
- * @description
+ * @description 供应商基础信息数据仓储层实现.
  * @date 2022-05-19
  */
 @Repository

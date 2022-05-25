@@ -19,7 +19,7 @@ import java.util.List;
 
 /**
  * @author wjd
- * @description
+ * @description 供应商业务字典关联关系数据仓储层实现.
  * @date 2022-05-17
  */
 @Repository

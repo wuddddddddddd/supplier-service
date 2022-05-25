@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 
 /**
  * @author wjd
- * @description
+ * @description 供应商业务状态变更记录数据仓储层实现.
  * @date 2022-05-18
  */
 @Repository
