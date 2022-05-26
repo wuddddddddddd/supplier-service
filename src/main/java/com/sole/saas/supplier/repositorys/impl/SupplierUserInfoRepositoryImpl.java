@@ -1,6 +1,8 @@
 package com.sole.saas.supplier.repositorys.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sole.saas.common.aops.BaseData;
 import com.sole.saas.common.constant.OperatorType;
@@ -34,6 +36,15 @@ public class SupplierUserInfoRepositoryImpl extends ServiceImpl<SupplierUserInfo
     @BaseData(fill = OperatorType.UPDATE)
     public boolean updateById(SupplierUserInfoPo entity) {
         return super.updateById(entity);
+    }
+
+    @Override
+    public int updateByOneParams(SFunction<SupplierUserInfoPo, ?> updateColumn, Object updateValue,
+                                 SFunction<SupplierUserInfoPo, ?> conditionColumn, Object conditionValue) {
+        final LambdaUpdateWrapper<SupplierUserInfoPo> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(updateColumn, updateValue);
+        updateWrapper.eq(conditionColumn, conditionValue);
+        return supplierUserInfoMapper.update(null, updateWrapper);
     }
 
     @Override

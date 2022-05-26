@@ -38,7 +38,7 @@
 
     <select id="getCustomerPage" parameterType="com.sole.saas.supplier.models.request.SupplierPageRequest" resultMap="supplierPageResponse">
         SELECT
-            bi.id, bi.supplier_id, bi.`code` as supplier_code, bi.`name` as supplier_name, bi.source,
+            bi.id, bi.id as supplier_id, bi.`code` as supplier_code, bi.`name` as supplier_name, bi.source,
             bi.manage_type_id, bi.self_support_type, bi.business_status,bi.create_time,
             qi.credit_code,
             ui.account as user_account, ui.`name` as user_name, ui.telephone as user_telephone, ui.email as user_email,
@@ -46,10 +46,10 @@
             bu.buyer_user_id
         FROM
             supplier_basic_info bi
-        LEFT JOIN (SELECT supplier_id, credit_code FROM supplier_qualification_info WHERE `status` = 0) qi ON bi.supplier_id = qi.supplier_id
-        LEFT JOIN (SELECT supplier_id, account, `name`, telephone, email FROM supplier_user_info WHERE `status` = 0)  ui ON bi.supplier_id = ui.supplier_id
-        LEFT JOIN (SELECT supplier_id, registered_date, province_id, city_id, district_id FROM supplier_register_info WHERE `status` = 0) ri ON bi.supplier_id = ri.supplier_id
-        LEFT JOIN (SELECT supplier_id, buyer_user_id FROM supplier_buyer_user WHERE `status` = 0) bu ON bi.supplier_id = bu.supplier_id
+        LEFT JOIN (SELECT supplier_id, credit_code FROM supplier_qualification_info WHERE `status` = 0) qi ON bi.id = qi.supplier_id
+        LEFT JOIN (SELECT supplier_id, account, `name`, telephone, email FROM supplier_user_info WHERE `status` = 0)  ui ON bi.id = ui.supplier_id
+        LEFT JOIN (SELECT supplier_id, registered_date, province_id, city_id, district_id FROM supplier_register_info WHERE `status` = 0) ri ON bi.id = ri.supplier_id
+        LEFT JOIN (SELECT supplier_id, buyer_user_id FROM supplier_buyer_user WHERE `status` = 0) bu ON bi.id = bu.supplier_id
         WHERE
             bi.`status` = 0
             <if test="qo.businessStatusList!= null and qo.businessStatusList.size()>0" >

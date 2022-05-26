@@ -300,9 +300,16 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
     public void checkApproval(Long supplierId, Long currentUserId) {
         logger.info("[供应商审批通过]---供应商ID为{}", supplierId);
 
+        // 查询出审批前信息
+        final SupplierBasicInfoPo supplierBasicInfoPo = supplierBasicInfoRepository.getById(supplierId);
+        ExceptionUtils.error(null == supplierBasicInfoPo)
+                .errorMessage(null, "[审批通用异常]---供应商ID{}未查询到对应的记录", supplierId);
+
         // 修改记录表业务状态为审批通过
         supplierBasicInfoLogRepository.updateByOneParams(SupplierBasicInfoLogPo::getBusinessStatus, BusinessStatusEnum.PROCESS_SUCCESS.getCode(),
                 SupplierBasicInfoLogPo::getSupplierId, supplierId);
+
+
 
         // 将记录表数据更新到主表
         // 基础信息表数据更新
@@ -337,6 +344,8 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         qualificationInfoRepository.save(qualificationInfoPo);
 
         // 公司注册信息更新
+        registerInfoRepository.updateByOneParams(RegisterInfoPo::getStatus, Constant.STATUS_DEL,
+                RegisterInfoPo::getSupplierId, supplierId);
         RegisterInfoRequest registerInfoRequest = new RegisterInfoRequest();
         registerInfoRequest.setSupplierId(supplierId);
         registerInfoRequest.setStatus(Constant.STATUS_NOT_DEL);
@@ -345,6 +354,8 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         registerInfoRepository.save(registerInfoPo);
 
         // 供应商联系人信息更新
+        supplierUserInfoRepository.updateByOneParams(SupplierUserInfoPo::getStatus, Constant.STATUS_DEL,
+                SupplierUserInfoPo::getSupplierId, supplierId);
         SupplierUserInfoRequest userInfoRequest = new SupplierUserInfoRequest();
         userInfoRequest.setSupplierId(supplierId);
         userInfoRequest.setStatus(Constant.STATUS_NOT_DEL);
@@ -353,6 +364,8 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         supplierUserInfoRepository.save(supplierUserInfoPo);
 
         // 采购员信息更新
+        supplierBuyerUserRepository.updateByOneParams(SupplierBuyerUserPo::getStatus, Constant.STATUS_DEL,
+                SupplierBuyerUserPo::getSupplierId, supplierId);
         SupplierBuyerUserRequest buyerUserRequest = new SupplierBuyerUserRequest();
         buyerUserRequest.setSupplierId(supplierId);
         buyerUserRequest.setStatus(Constant.STATUS_NOT_DEL);
@@ -367,7 +380,6 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         checkOpinionPo.setAssigneeId(currentUserId);
         checkOpinionPo.setOpinionType(BusinessStatusEnum.PROCESS_SUCCESS.getCode());
         checkOpinionRepository.save(checkOpinionPo);
-
     }
 
     @Override
