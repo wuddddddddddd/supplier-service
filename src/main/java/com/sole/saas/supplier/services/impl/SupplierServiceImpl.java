@@ -132,6 +132,14 @@ public class SupplierServiceImpl implements ISupplierInfoService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public void updateBusinessById(Long supplierId, Integer businessStatus) {
+        logger.info("[修改供应商业务状态]---供应商ID为{},待修改的业务状态为{}", supplierId, businessStatus);
+        supplierBasicInfoRepository.updateByOneParams(SupplierBasicInfoPo::getBusinessStatus, businessStatus,
+                SupplierBasicInfoPo::getId, supplierId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public void remarkSelfSupport(Long supplierId) {
         logger.info("[供应商标记自营]---供应商ID为{}", supplierId);
         supplierBasicInfoRepository.updateByOneParams(SupplierBasicInfoPo::getSelfSupportType,

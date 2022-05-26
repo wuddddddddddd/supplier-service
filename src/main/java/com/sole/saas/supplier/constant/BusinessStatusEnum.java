@@ -22,29 +22,31 @@ public enum BusinessStatusEnum {
 
     PROCESS_SUCCESS(5, "审批通过", "common", "通用"),
 
-    STOP_COOPERATION(6, "终止合作", "supplier", "供应商"),
+    STANDARD(6, "合格", "supplier", "供应商"),
 
-    BLACK(7, "加黑", "supplier", "供应商"),
+    STOP_COOPERATION(7, "终止合作", "supplier", "供应商"),
 
-    NOT_DEAL(8, "未处理", "complaintInfo", "投诉"),
+    BLACK(8, "加黑", "supplier", "供应商"),
 
-    DEAL_DONE(9, "已处理", "complaintInfo", "投诉"),
+    NOT_DEAL(9, "未处理", "complaintInfo", "投诉"),
 
-    NO_COOPERATION(10, "无协议", "contract", "合同"),
+    DEAL_DONE(10, "已处理", "complaintInfo", "投诉"),
 
-    NOT_ACTIVE(11, "未生效", "contract", "合同"),
+    NO_COOPERATION(11, "无协议", "contract", "合同"),
 
-    IN_ACTIVE(12, "已生效", "contract,industryQualification", "合同,行业资质"),
+    NOT_ACTIVE(12, "未生效", "contract", "合同"),
 
-    EXPIRE(13, "已过期", "contract,industryQualification", "合同,行业资质");
+    IN_ACTIVE(13, "已生效", "contract,industryQualification", "合同,行业资质"),
+
+    EXPIRE(14, "已过期", "contract,industryQualification", "合同,行业资质");
 
 
 
-    private int code;
+    private final int code;
 
-    private String name;
+    private final String name;
 
-    private String functionCode;
+    private final String functionCode;
 
-    private String functionName;
+    private final String functionName;
 }

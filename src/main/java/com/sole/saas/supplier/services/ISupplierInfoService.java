@@ -32,6 +32,15 @@ public interface ISupplierInfoService {
     IPage<SupplierPageResponse> getSupplierPageByParams(SupplierPageRequest request);
 
     /**
+      * @description 根据供应商ID修改业务状态.
+      * @author wjd
+      * @date 2022/5/26
+      * @param supplierId 供应商ID
+      * @param businessStatus 业务状态
+      */
+    void updateBusinessById(Long supplierId, Integer businessStatus);
+
+    /**
       * @description 供应商标记自营.
       * @author wjd
       * @date 2022/5/25
