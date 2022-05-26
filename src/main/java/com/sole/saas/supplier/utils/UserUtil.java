@@ -1,5 +1,6 @@
 package com.sole.saas.supplier.utils;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSON;
 import com.sole.saas.common.apis.UserClient;
 import com.sole.saas.common.models.Response;
@@ -10,7 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author wjd
@@ -37,6 +41,16 @@ public class UserUtil {
             list = JSON.parseArray(JSON.toJSONString(response.getData()), UserResponse.class);
         }
         return list;
+    }
+
+    public Map<Long, UserResponse> getUserMapByIdList(List<Integer> idList) {
+        Map<Long, UserResponse> userMap = new HashMap<>();
+        final List<UserResponse> userList = this.getUserListByIdList(idList);
+        if (CollectionUtil.isEmpty(userList)) {
+            return userMap;
+        }
+        userMap = userList.stream().collect(Collectors.toMap(UserResponse::getId, e -> e, (k1, k2) -> k1));
+        return userMap;
     }
 
 }

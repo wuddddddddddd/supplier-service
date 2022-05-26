@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sole.saas.supplier.mappers.OutlineMapper">
+    <resultMap id="offlineAchievementPo" type="com.sole.saas.supplier.models.po.OutlinePo">
+        <id property="id" column="id" jdbcType="NUMERIC"/>
+    </resultMap>
+
+    <resultMap id="outLinePageResponse" type="com.sole.saas.supplier.models.response.OutLinePageResponse">
+        <id property="id" column="id" jdbcType="NUMERIC"/>
+        <result property="outLineNumber" column="out_line_number" />
+        <result property="supplierName" column="supplier_name" />
+        <result property="supplierCode" column="supplier_code" />
+        <result property="manageTypeId" column="manage_type_id" />
+        <result property="creditCode" column="credit_code" />
+        <result property="registeredDate" column="registered_date" />
+        <result property="provinceId" column="province_id" />
+        <result property="cityId" column="city_id" />
+        <result property="districtId" column="district_id" />
+        <result property="userName" column="user_name" />
+        <result property="userTelephone" column="user_telephone" />
+        <result property="buyerUserId" column="buyer_user_id" />
+    </resultMap>
+
+    <sql id="tableName">
+        supplier_out_line ol
+    </sql>
+
+    <sql id="columns">
+        ol.id
+    </sql>
+
+    
+    
+    <select id="getCustomerPage" parameterType="com.sole.saas.supplier.models.request.OutlinePageRequest" resultMap="outLinePageResponse">
+        SELECT
+            ol.id,
+            ol.supplier_id,
+            ol.out_line_number,
+            bi.name as supplier_name,
+            bi.`code` as supplier_code,
+            bi.manage_type_id,
+            qi.credit_code,
+            ri.registered_date,
+            ri.province_id,
+            ri.city_id,
+            ri.district_id,
+            ui.`name` as user_name,
+            ui.telephone as user_telephone,
+            bu.buyer_user_id
+        FROM
+            ( SELECT id, supplier_id, COUNT( 1 ) AS out_line_number FROM supplier_out_line WHERE `status` = 0 GROUP BY supplier_id ) ol
+            LEFT JOIN (SELECT id, `code` , name, manage_type_id FROM supplier_basic_info WHERE `status` = 0) bi ON ol.supplier_id = bi.id
+            LEFT JOIN (SELECT supplier_id, credit_code FROM supplier_qualification_info WHERE `status` = 0) qi ON ol.supplier_id = qi.supplier_id
+            LEFT JOIN (SELECT supplier_id, registered_date, province_id, city_id, district_id FROM supplier_register_info WHERE `status` = 0) ri ON ol.supplier_id = ri.supplier_id
+            LEFT JOIN (SELECT supplier_id, `name`, telephone FROM supplier_user_info WHERE `status` = 0) ui ON ol.supplier_id = ui.supplier_id
+            LEFT JOIN (SELECT supplier_id, buyer_user_id FROM supplier_buyer_user WHERE `status` = 0) bu ON ol.supplier_id = bu.supplier_id
+        <where>
+            <if test="qo.supplierName != null and qo.supplierName != ''">
+                AND bi.`name` like CONCAT('%',#{qo.supplierName}, '%')
+            </if>
+            <if test="qo.buyerUserId != null and qo.buyerUserId != ''">
+                AND bu.buyer_user_id = #{qo.buyerUserId}
+            </if>
+            <if test="qo.provinceId != null and qo.provinceId != ''">
+                AND ri.province_id= #{provinceId}
+            </if>
+            <if test="qo.cityId != null and qo.cityId != ''">
+                AND ri.city_id= #{qo.cityId}
+            </if>
+            <if test="qo.districtId != null and qo.districtId != ''">
+                AND ri.district_id= #{districtId}
+            </if>
+        </where>
+    </select>
+</mapper>

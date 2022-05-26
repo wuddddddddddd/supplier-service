@@ -69,11 +69,9 @@ public class SupplierUtil {
         Set<Long> supplierIdSet = new HashSet<>();
         for (SupplierPageResponse response : list) {
             manageTypeIdSet.add(response.getManageTypeId());
-
             areaIdSet.add(response.getProvinceId());
             areaIdSet.add(response.getCityId());
             areaIdSet.add(response.getDistrictId());
-
             if (null != response.getBuyerUserId()) {
                 final int userId = response.getBuyerUserId().intValue();
                 userIdSet.add(userId);
@@ -82,39 +80,19 @@ public class SupplierUtil {
                 final int userId = response.getOldBuyerUserId().intValue();
                 userIdSet.add(userId);
             }
-
             supplierIdSet.add(response.getSupplierId());
-
         }
         // 经营类型<经营类型ID, 业务字典集>
-        Map<Long, DictInfoPo> dictMap = new HashMap<>();
-        if (CollectionUtil.isNotEmpty(manageTypeIdSet)) {
-            DictInfoRequest dictInfoRequest = new DictInfoRequest();
-            dictInfoRequest.setIdList(new ArrayList<>(manageTypeIdSet));
-            dictInfoRequest.setStatus(Constant.STATUS_NOT_DEL);
-            final List<DictInfoPo> dictInfoPoList = dictInfoRepository.getListByParams(dictInfoRequest);
-            if (CollectionUtil.isNotEmpty(dictInfoPoList)) {
-                dictMap = dictInfoPoList.stream().collect(Collectors.toMap(DictInfoPo::getId, e -> e, (k1, k2) -> k1));
-            }
-        }
+        DictInfoRequest dictInfoRequest = new DictInfoRequest();
+        dictInfoRequest.setIdList(new ArrayList<>(manageTypeIdSet));
+        Map<Long, DictInfoPo> dictMap = dictInfoRepository.getMapByParams(dictInfoRequest);
 
         // 区域信息
-        Map<Long, CommonAreaResponse> areaMap = new HashMap<>();
-        if (CollectionUtil.isNotEmpty(areaIdSet)) {
-            final List<CommonAreaResponse> areaList = orgUtil.getAreaByIdList(new ArrayList<>(areaIdSet));
-            if (CollectionUtil.isNotEmpty(areaList)) {
-                areaMap = areaList.stream().collect(Collectors.toMap(CommonAreaResponse::getAreaId, e -> e, (k1, k2) -> k1));
-            }
-        }
+        Map<Long, CommonAreaResponse> areaMap = orgUtil.getAreaMapByIdList(new ArrayList<>(areaIdSet));
+
 
         // 采购员信息
-        Map<Long, UserResponse> userMap = new HashMap<>();
-        if (CollectionUtil.isNotEmpty(userIdSet)) {
-            final List<UserResponse> userList = userUtil.getUserListByIdList(new ArrayList<>(userIdSet));
-            if (CollectionUtil.isNotEmpty(userList)) {
-                userMap = userList.stream().collect(Collectors.toMap(UserResponse::getId, e -> e, (k1, k2) -> k1));
-            }
-        }
+        Map<Long, UserResponse> userMap = userUtil.getUserMapByIdList(new ArrayList<>(userIdSet));
 
         // 主营行业信息
         Map<Long, List<SupplierIndustryResponse>> industryMap = new HashMap<>();
@@ -185,7 +163,7 @@ public class SupplierUtil {
       * @param supplierIdSet 供应商ID集
       * @return 供应商关联主营行业记录信息
       */
-    private Map<Long, List<SupplierIndustryResponse>> getIndustryLogMap(Set<Long> supplierIdSet) {
+    public Map<Long, List<SupplierIndustryResponse>> getIndustryLogMap(Set<Long> supplierIdSet) {
         Map<Long, List<SupplierIndustryResponse>> industryMap = new HashMap<>();
 
         SupplierIndustryRequest request = new SupplierIndustryRequest();
@@ -208,7 +186,7 @@ public class SupplierUtil {
      * @param supplierIdSet 供应商ID集
      * @return 供应商关联主营行业信息
      */
-    private Map<Long, List<SupplierIndustryResponse>> getIndustryMap(Set<Long> supplierIdSet) {
+    public Map<Long, List<SupplierIndustryResponse>> getIndustryMap(Set<Long> supplierIdSet) {
         Map<Long, List<SupplierIndustryResponse>> industryMap = new HashMap<>();
         SupplierIndustryRequest request = new SupplierIndustryRequest();
         request.setSupplierIdList(new ArrayList<>(supplierIdSet));

@@ -12,7 +12,10 @@ import com.sole.saas.supplier.models.request.DictInfoRequest;
 import com.sole.saas.supplier.repositorys.IDictInfoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author wjd
@@ -42,6 +45,17 @@ public class DictInfoRepositoryImpl extends ServiceImpl<DictInfoMapper, DictInfo
             queryWrapper.in(DictInfoPo::getId, request.getIdList());
         }
         return dictInfoMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    public Map<Long, DictInfoPo> getMapByParams(DictInfoRequest request) {
+        Map<Long, DictInfoPo> map  = new HashMap<>();
+        final List<DictInfoPo> dictInfoPoList = this.getListByParams(request);
+        if (CollectionUtil.isEmpty(dictInfoPoList)) {
+            return map;
+        }
+        map = dictInfoPoList.stream().collect(Collectors.toMap(DictInfoPo::getId, e -> e, (k1, k2) -> k1));
+        return map;
     }
 
     /**

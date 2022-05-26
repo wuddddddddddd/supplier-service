@@ -38,7 +38,11 @@ public enum BusinessStatusEnum {
 
     IN_ACTIVE(13, "已生效", "contract,industryQualification", "合同,行业资质"),
 
-    EXPIRE(14, "已过期", "contract,industryQualification", "合同,行业资质");
+    EXPIRE(14, "已过期", "contract,industryQualification", "合同,行业资质"),
+
+    CORRECT(15, "已整改", "outLine", "供应商违规处理"),
+
+    UN_CORRECT(16, "未整改", "outLine", "供应商违规处理");
 
 
 
