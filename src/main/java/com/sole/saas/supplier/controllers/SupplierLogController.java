@@ -48,9 +48,6 @@ public class SupplierLogController {
     @ApiOperation(value = "完善供应商信息")
     @PostMapping("/addSupplier")
     public Response addSupplier(@RequestBody SupplierRequest request) {
-        final UserResponse currentUser = ContextUtil.getCurrentUser();
-        // 设置采购员为当前登录人
-        request.getSupplierBuyerUserRequest().setBuyerUserId(Long.valueOf(currentUser.getId()));
         supplierLogService.addSupplier(request, false);
         return new Response<>();
     }
@@ -58,9 +55,6 @@ public class SupplierLogController {
     @ApiOperation(value = "保存草稿")
     @PostMapping("/addSupplierDraft")
     public Response addSupplierDraft(@RequestBody SupplierRequest request) {
-        final UserResponse currentUser = ContextUtil.getCurrentUser();
-        // 设置采购员为当前登录人
-        request.getSupplierBuyerUserRequest().setBuyerUserId(Long.valueOf(currentUser.getId()));
         supplierLogService.addSupplier(request, true);
         return new Response<>();
     }

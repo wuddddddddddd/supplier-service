@@ -200,13 +200,7 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         supplierUserInfoLogPo.setSupplierId(supplierId);
         supplierUserInfoLogRepository.save(supplierUserInfoLogPo);
 
-        // 采购员信息更新
-        supplierBuyerUserLogRepository.updateByOneParams(SupplierBuyerUserLogPo::getStatus, Constant.STATUS_DEL,
-                SupplierBuyerUserLogPo::getSupplierId, supplierId);
-        final SupplierBuyerUserRequest supplierBuyerUserRequest = request.getSupplierBuyerUserRequest();
-        final SupplierBuyerUserLogPo supplierBuyerUserLogPo = SupplierBuyerUserCvt.INSTANCE.requestToLogPo(supplierBuyerUserRequest);
-        supplierBuyerUserLogPo.setSupplierId(supplierId);
-        supplierBuyerUserLogRepository.save(supplierBuyerUserLogPo);
+        // 采购员信息不做处理:最初创建者是谁谁就是采购员,不受完善&重新编辑人影响
     }
 
     @Override
@@ -304,11 +298,12 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         final SupplierBasicInfoPo supplierBasicInfoPo = supplierBasicInfoRepository.getById(supplierId);
         ExceptionUtils.error(null == supplierBasicInfoPo)
                 .errorMessage(null, "[审批通用异常]---供应商ID{}未查询到对应的记录", supplierId);
+        // 获取业务状态是否是创建中,如果是创建中则审批通过可所有信息进行同步覆盖更新,如果不是创建中则需要保留当前部分信息
+        boolean isComplete = supplierBasicInfoPo.getBusinessStatus() == BusinessStatusEnum.CREATE_ING.getCode();
 
         // 修改记录表业务状态为审批通过
         supplierBasicInfoLogRepository.updateByOneParams(SupplierBasicInfoLogPo::getBusinessStatus, BusinessStatusEnum.PROCESS_SUCCESS.getCode(),
                 SupplierBasicInfoLogPo::getSupplierId, supplierId);
-
 
 
         // 将记录表数据更新到主表
@@ -319,8 +314,8 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         final SupplierBasicInfoLogPo basicInfoLogPo = supplierBasicInfoLogRepository.getByParams(supplierBasicInfoRequest);
         ExceptionUtils.error(null == basicInfoLogPo)
                 .errorMessage(null, "根据供应商ID{}未获取到记录信息", supplierId);
-        final SupplierBasicInfoPo basicInfoPo = SupplierBasicInfoCvt.INSTANCE.logPoToPo(basicInfoLogPo);
-        basicInfoPo.setId(supplierId);
+        // 根据是否完善中组装信息并更新
+        final SupplierBasicInfoPo basicInfoPo = this.syncBasicInfo(supplierBasicInfoPo, basicInfoLogPo, isComplete);
         supplierBasicInfoRepository.updateById(basicInfoPo);
 
         // 主营行业信息更新
@@ -363,15 +358,18 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         final SupplierUserInfoPo supplierUserInfoPo = SupplierUserInfoCvt.INSTANCE.logPoToPo(userInfoLogPo);
         supplierUserInfoRepository.save(supplierUserInfoPo);
 
-        // 采购员信息更新
-        supplierBuyerUserRepository.updateByOneParams(SupplierBuyerUserPo::getStatus, Constant.STATUS_DEL,
-                SupplierBuyerUserPo::getSupplierId, supplierId);
-        SupplierBuyerUserRequest buyerUserRequest = new SupplierBuyerUserRequest();
-        buyerUserRequest.setSupplierId(supplierId);
-        buyerUserRequest.setStatus(Constant.STATUS_NOT_DEL);
-        final SupplierBuyerUserLogPo buyerUserLogPo = supplierBuyerUserLogRepository.getByParams(buyerUserRequest);
-        final SupplierBuyerUserPo buyerUserPo = SupplierBuyerUserCvt.INSTANCE.logPoToPo(buyerUserLogPo);
-        supplierBuyerUserRepository.save(buyerUserPo);
+        // 采购员信息更新:是否是完善审批通过,如果是则采购员信息覆盖更新
+        // 如果不是则不做任何处理
+        if (isComplete) {
+            supplierBuyerUserRepository.updateByOneParams(SupplierBuyerUserPo::getStatus, Constant.STATUS_DEL,
+                    SupplierBuyerUserPo::getSupplierId, supplierId);
+            SupplierBuyerUserRequest buyerUserRequest = new SupplierBuyerUserRequest();
+            buyerUserRequest.setSupplierId(supplierId);
+            buyerUserRequest.setStatus(Constant.STATUS_NOT_DEL);
+            final SupplierBuyerUserLogPo buyerUserLogPo = supplierBuyerUserLogRepository.getByParams(buyerUserRequest);
+            final SupplierBuyerUserPo buyerUserPo = SupplierBuyerUserCvt.INSTANCE.logPoToPo(buyerUserLogPo);
+            supplierBuyerUserRepository.save(buyerUserPo);
+        }
 
         // 保存审批信息
         CheckOpinionPo checkOpinionPo = new CheckOpinionPo();
@@ -397,5 +395,32 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         checkOpinionPo.setOpinionType(BusinessStatusEnum.PROCESS_REJECT.getCode());
         checkOpinionPo.setRemark(reason);
         checkOpinionRepository.save(checkOpinionPo);
+    }
+
+    /**
+     * @description 将记录表基础信息更新到主表.
+     * @author wjd
+     * @date 2022/5/26
+     * @param po 主表原信息
+     * @param logPo 记录表信息
+     * @return 当前操作是否是完善通过
+     */
+    private SupplierBasicInfoPo syncBasicInfo(SupplierBasicInfoPo po, SupplierBasicInfoLogPo logPo, boolean isComplete) {
+        // 如果是完善则将记录表数据覆盖至主表
+        if (isComplete) {
+            SupplierBasicInfoPo basicInfoPo = SupplierBasicInfoCvt.INSTANCE.logPoToPo(logPo);
+            basicInfoPo.setId(po.getId());
+            return basicInfoPo;
+        }
+        // 如果不是完善则更新只能修改的部分值
+        po.setName(logPo.getName());
+        po.setShortName(logPo.getShortName());
+        po.setSupplierSizeId(logPo.getSupplierSizeId());
+        po.setManageTypeId(logPo.getManageTypeId());
+        po.setCompanyNatureId(logPo.getCompanyNatureId());
+        po.setSalesYear(logPo.getSalesYear());
+        po.setBusinessScope(logPo.getBusinessScope());
+        po.setDescription(logPo.getDescription());
+        return po;
     }
 }

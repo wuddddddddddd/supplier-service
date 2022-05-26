@@ -66,6 +66,9 @@ public class BusinessHistoryRepositoryImpl extends ServiceImpl<BusinessHistoryMa
         if (null != request.getType()) {
             queryWrapper.eq(BusinessHistoryPo::getType, request.getType());
         }
+        if (null != request.getStatus()) {
+            queryWrapper.eq(BusinessHistoryPo::getStatus, request.getStatus());
+        }
         return queryWrapper;
     }
 }
