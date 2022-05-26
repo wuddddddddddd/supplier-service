@@ -41,6 +41,9 @@ public class SupplierPageResponse implements Serializable {
     @ApiModelProperty(value = "经营类型对应业务字典ID")
     private Long manageTypeId;
 
+    @ApiModelProperty(value = "自营类型")
+    private Integer selfSupportType;
+
     @ApiModelProperty(value = "业务状态")
     private Integer businessStatus;
 
@@ -52,7 +55,11 @@ public class SupplierPageResponse implements Serializable {
     @ApiModelProperty(value = "统一社会信用代码")
     private String creditCode;
 
+    @ApiModelProperty(value = "信用评级")
+    private String creditLevel;
 
+    @ApiModelProperty(value = "信用得分")
+    private String creditScore;
 
 
     @ApiModelProperty(value = "账号")
@@ -85,6 +92,19 @@ public class SupplierPageResponse implements Serializable {
 
     @ApiModelProperty(value = "原所属采购员ID")
     private Long oldBuyerUserId;
+
+
+    @ApiModelProperty(value = "合同授权协议业务状态")
+    private Integer contractBusinessStatus;
+
+    @ApiModelProperty(value = "合同授权协议业务状态名称")
+    private Integer contractBusinessStatusName;
+
+    @ApiModelProperty(value = "行业资质待审")
+    private Integer industryQualificationInProcess;
+
+    @ApiModelProperty(value = "行业资质已审")
+    private Integer industryQualificationApproval;
 
 
     @ApiModelProperty(value = "经营类型对应业务字典ID")

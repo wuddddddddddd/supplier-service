@@ -14,6 +14,7 @@
         <result property="supplierName" column="supplier_name" />
         <result property="source" column="source" />
         <result property="manageTypeId" column="manage_type_id" />
+        <result property="selfSupportType" column="self_support_type" />
         <result property="businessStatus" column="business_status" />
         <result property="createTime" column="create_time" />
         <result property="creditCode" column="credit_code" />
@@ -30,19 +31,20 @@
 
     <select id="getCustomerLogPage" parameterType="com.sole.saas.supplier.models.request.SupplierPageRequest" resultMap="supplierPageResponse">
         SELECT
-            bi.id, bi.supplier_id, bi.`code` as supplier_code, bi.`name` as supplier_name, bi.source, bi.manage_type_id, bi.business_status,bi.create_time,
+            bi.id, bi.supplier_id, bi.`code` as supplier_code, bi.`name` as supplier_name, bi.source,
+            bi.manage_type_id, bi.self_support_type, bi.business_status,bi.create_time,
             qi.credit_code,
             ui.account as user_account, ui.`name` as user_name, ui.telephone as user_telephone, ui.email as user_email,
             ri.registered_date, ri.province_id, ri.city_id, ri.district_id,
             bu.buyer_user_id
         FROM
             supplier_basic_info_log bi
-                LEFT JOIN supplier_qualification_info_log qi on bi.supplier_id = qi.supplier_id
-                LEFT JOIN supplier_user_info_log ui ON bi.supplier_id = ui.supplier_id
-                LEFT JOIN supplier_register_info_log ri ON bi.supplier_id = ri.supplier_id
-                LEFT JOIN supplier_buyer_user_log bu ON bi.supplier_id = bu.supplier_id
+                LEFT JOIN (SELECT supplier_id, credit_code FROM supplier_qualification_info_log WHERE `status` = 0) qi ON bi.supplier_id = qi.supplier_id
+                LEFT JOIN (SELECT supplier_id, account, `name`, telephone, email FROM supplier_user_info_log WHERE `status` = 0)  ui ON bi.supplier_id = ui.supplier_id
+                LEFT JOIN (SELECT supplier_id, registered_date, province_id, city_id, district_id FROM supplier_register_info_log WHERE `status` = 0) ri ON bi.supplier_id = ri.supplier_id
+                LEFT JOIN (SELECT supplier_id, buyer_user_id FROM supplier_buyer_user_log WHERE `status` = 0) bu ON bi.supplier_id = bu.supplier_id
         WHERE
-            bi.`status` = 0 AND qi.`status` = 0 AND ui.`status` = 0 AND ri.`status` = 0 AND bu.`status` = 0
+            bi.`status` = 0
         <if test="qo.businessStatusList!= null and qo.businessStatusList.size()>0" >
                 AND bi.business_status IN
                 <foreach collection="qo.businessStatusList" item="item" open="(" close=")" separator="," >

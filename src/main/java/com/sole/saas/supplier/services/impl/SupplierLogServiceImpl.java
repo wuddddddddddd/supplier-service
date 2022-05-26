@@ -11,6 +11,7 @@ import com.sole.saas.common.utils.ExceptionUtils;
 import com.sole.saas.common.utils.RedisUtils;
 import com.sole.saas.supplier.constant.BusinessStatusEnum;
 import com.sole.saas.supplier.constant.OpinionTypeEnum;
+import com.sole.saas.supplier.constant.SelfSupportEnum;
 import com.sole.saas.supplier.constant.SupplierConstant;
 import com.sole.saas.supplier.cvts.*;
 import com.sole.saas.supplier.models.po.*;
@@ -100,6 +101,7 @@ public class SupplierLogServiceImpl implements ISupplierLogService {
         basicInfoPo.setName(request.getSupplierName());
         basicInfoPo.setBusinessStatus(BusinessStatusEnum.CREATE_ING.getCode());
         basicInfoPo.setSource(request.getSource());
+        basicInfoPo.setSelfSupportType(SelfSupportEnum.OTHER.getCode());
         supplierBasicInfoRepository.save(basicInfoPo);
         final Long supplierId = basicInfoPo.getId();
         // 保存日志信息
