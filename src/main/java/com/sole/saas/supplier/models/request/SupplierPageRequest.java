@@ -39,6 +39,9 @@ public class SupplierPageRequest extends BaseRequest implements Serializable {
     @ApiModelProperty(value = "经营类型对应业务字典ID")
     private Long manageTypeId;
 
+    @ApiModelProperty(value = "自营状态")
+    private Integer selfSupportType;
+
     @ApiModelProperty(value = "业务状态")
     private Integer businessStatus;
 

@@ -38,19 +38,50 @@
 
     <select id="getCustomerPage" parameterType="com.sole.saas.supplier.models.request.SupplierPageRequest" resultMap="supplierPageResponse">
         SELECT
-            bi.id, bi.id as supplier_id  bi.`code` as supplier_code, bi.`name` as supplier_name, bi.source, bi.manage_type_id, bi.business_status,bi.create_time,
+            bi.id, bi.supplier_id, bi.`code` as supplier_code, bi.`name` as supplier_name, bi.source,
+            bi.manage_type_id, bi.self_support_type, bi.business_status,bi.create_time,
             qi.credit_code,
             ui.account as user_account, ui.`name` as user_name, ui.telephone as user_telephone, ui.email as user_email,
             ri.registered_date, ri.province_id, ri.city_id, ri.district_id,
-            bu.buyer_user_id, bu.old_buyer_user_id
+            bu.buyer_user_id
         FROM
             supplier_basic_info bi
-                LEFT JOIN supplier_qualification_info qi on bi.id = qi.supplier_id
-                LEFT JOIN supplier_user_info ui ON bi.id = ui.supplier_id
-                LEFT JOIN supplier_register_info ri ON bi.id = ri.supplier_id
-                LEFT JOIN supplier_buyer_user bu ON bi.id = bu.supplier_id
+        LEFT JOIN (SELECT supplier_id, credit_code FROM supplier_qualification_info WHERE `status` = 0) qi ON bi.supplier_id = qi.supplier_id
+        LEFT JOIN (SELECT supplier_id, account, `name`, telephone, email FROM supplier_user_info WHERE `status` = 0)  ui ON bi.supplier_id = ui.supplier_id
+        LEFT JOIN (SELECT supplier_id, registered_date, province_id, city_id, district_id FROM supplier_register_info WHERE `status` = 0) ri ON bi.supplier_id = ri.supplier_id
+        LEFT JOIN (SELECT supplier_id, buyer_user_id FROM supplier_buyer_user WHERE `status` = 0) bu ON bi.supplier_id = bu.supplier_id
         WHERE
-              bi.STATUS = 0
+            bi.`status` = 0
+            <if test="qo.businessStatusList!= null and qo.businessStatusList.size()>0" >
+                AND bi.business_status IN
+                <foreach collection="qo.businessStatusList" item="item" open="(" close=")" separator="," >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="qo.businessStatus != null and qo.businessStatus != ''">
+                AND bi.business_status = #{qo.businessStatus}
+            </if>
+            <if test="qo.supplierName != null and qo.supplierName != ''">
+                AND bi.name LIKE CONCAT( '%', #{qo.supplierName}, '%' )
+            </if>
+            <if test="qo.source != null and qo.source != ''">
+                AND bi.source = #{qo.source}
+            </if>
+            <if test="qo.userName != null and qo.userName != ''">
+                AND ui.name LIKE CONCAT( '%', #{qo.userName}, '%' )
+            </if>
+            <if test="qo.userTelephone != null and qo.userTelephone != ''">
+                AND ui.telephone = #{qo.userTelephone}
+            </if>
+            <if test="qo.buyerUserId != null and qo.buyerUserId != ''">
+                AND bu.buyer_user_id = #{qo.buyerUserId}
+            </if>
+            <if test="qo.selfSupportType != null and qo.selfSupportType != ''">
+                AND bi.self_support_type = #{qo.selfSupportType}
+            </if>
+            <if test="qo.registeredDate != null and qo.registeredDate != ''">
+                AND DATE_FORMAT( ri.registered_date, '%Y-%m-%d' ) = DATE_FORMAT( #{qo.registeredDate}, '%Y-%m-%d' )
+            </if>
     </select>
 
 
