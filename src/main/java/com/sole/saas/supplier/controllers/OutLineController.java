@@ -33,7 +33,7 @@ public class OutLineController {
 
     @ApiOperation(value = "新增供应商违规信息")
     @PostMapping("/addOutLine")
-    public Response addOutLine(OutlineRequest request) {
+    public Response addOutLine(@RequestBody OutlineRequest request) {
         outlineService.addOutLine(request);
         return new Response<>();
     }
@@ -65,7 +65,7 @@ public class OutLineController {
         return new Response<>(page);
     }
 
-    @ApiOperation(value = "查询供应商违规分页信息")
+    @ApiOperation(value = "根据供应商ID查询违规信息集")
     @GetMapping("/getListBySupplierId")
     public Response getListBySupplierId(@RequestParam Long supplierId) {
         OutlineRequest request = new OutlineRequest();

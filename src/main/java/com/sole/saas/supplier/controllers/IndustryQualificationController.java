@@ -59,7 +59,7 @@ public class IndustryQualificationController {
 
     @ApiOperation(value = "行业资质信息审批驳回")
     @GetMapping("/checkReject")
-    public Response checkReject(@RequestParam Long id, @RequestParam String reason) {
+    public Response checkReject(@RequestParam Long id, @RequestParam(required = false) String reason) {
         final UserResponse currentUser = ContextUtil.getCurrentUser();
         iIndustryQualificationService.checkReject(id, reason, Long.valueOf(currentUser.getId()));
         return new Response<>();

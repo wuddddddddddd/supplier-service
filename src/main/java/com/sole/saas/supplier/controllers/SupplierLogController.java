@@ -108,7 +108,7 @@ public class SupplierLogController {
 
     @ApiOperation(value = "供应商审批驳回")
     @GetMapping("/checkReject")
-    public Response checkReject(@RequestParam Long supplierId, @RequestParam String reason) {
+    public Response checkReject(@RequestParam Long supplierId, @RequestParam(required = false) String reason) {
         final UserResponse currentUser = ContextUtil.getCurrentUser();
         supplierLogService.checkReject(supplierId, reason, Long.valueOf(currentUser.getId()));
         return new Response<>();

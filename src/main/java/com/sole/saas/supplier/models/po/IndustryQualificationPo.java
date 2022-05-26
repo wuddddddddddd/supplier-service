@@ -39,11 +39,11 @@ public class IndustryQualificationPo extends Model<IndustryQualificationPo> {
 
     @ApiModelProperty(value = "资质有效期开始")
     @JSONField(format="yyyy-MM-dd")
-    private String startDate;
+    private Date startDate;
 
     @ApiModelProperty(value = "资质有效期结束")
     @JSONField(format="yyyy-MM-dd")
-    private String endDate;
+    private Date endDate;
 
     @ApiModelProperty(value = "业务状态")
     private Integer businessStatus;
