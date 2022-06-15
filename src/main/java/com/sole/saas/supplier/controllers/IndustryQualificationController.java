@@ -16,36 +16,36 @@ import org.springframework.web.bind.annotation.*;
  * @description
  * @date 2022-05-23
  */
-@Api(value="行业资质信息信息控制层")
+@Api(value="行业资质信息控制层")
 @RestController
 @RequestMapping("/industryQualification")
 public class IndustryQualificationController {
 
-    private final IIndustryQualificationService iIndustryQualificationService;
+    private final IIndustryQualificationService industryQualificationService;
 
-
-    public IndustryQualificationController(IIndustryQualificationService iIndustryQualificationService) {
-        this.iIndustryQualificationService = iIndustryQualificationService;
+    public IndustryQualificationController(IIndustryQualificationService industryQualificationService) {
+        this.industryQualificationService = industryQualificationService;
     }
+
 
     @ApiOperation(value = "新增行业资质信息")
     @PostMapping("/addIndustryQualification")
     public Response addIndustryQualification(@RequestBody IndustryQualificationRequest request) {
-        iIndustryQualificationService.addIndustryQualification(request);
+        industryQualificationService.addIndustryQualification(request);
         return new Response<>();
     }
 
     @ApiOperation(value = "修改行业资质信息")
     @PostMapping("/updateIndustryQualification")
     public Response updateIndustryQualification(@RequestBody IndustryQualificationRequest request) {
-        iIndustryQualificationService.updateIndustryQualification(request);
+        industryQualificationService.updateIndustryQualification(request);
         return new Response<>();
     }
 
     @ApiOperation(value = "删除行业资质信息")
     @GetMapping("/delIndustryQualification")
     public Response delIndustryQualification(@RequestParam Long id) {
-        iIndustryQualificationService.delIndustryQualification(id);
+        industryQualificationService.delIndustryQualification(id);
         return new Response<>();
     }
 
@@ -53,7 +53,7 @@ public class IndustryQualificationController {
     @GetMapping("/checkApproval")
     public Response checkApproval(@RequestParam Long id) {
         final UserResponse currentUser = ContextUtil.getCurrentUser();
-        iIndustryQualificationService.checkApproval(id, Long.valueOf(currentUser.getId()));
+        industryQualificationService.checkApproval(id, Long.valueOf(currentUser.getId()));
         return new Response<>();
     }
 
@@ -61,7 +61,7 @@ public class IndustryQualificationController {
     @GetMapping("/checkReject")
     public Response checkReject(@RequestParam Long id, @RequestParam(required = false) String reason) {
         final UserResponse currentUser = ContextUtil.getCurrentUser();
-        iIndustryQualificationService.checkReject(id, reason, Long.valueOf(currentUser.getId()));
+        industryQualificationService.checkReject(id, reason, Long.valueOf(currentUser.getId()));
         return new Response<>();
     }
 
@@ -71,7 +71,7 @@ public class IndustryQualificationController {
         IndustryQualificationRequest request = new IndustryQualificationRequest();
         request.setPageIndex(pageIndex);
         request.setPageSize(pageSize);
-        final IPage<IndustryQualificationResponse> pageInfo = iIndustryQualificationService.getPageInfo(request);
+        final IPage<IndustryQualificationResponse> pageInfo = industryQualificationService.getPageInfo(request);
         return new Response<>(pageInfo);
     }
 
